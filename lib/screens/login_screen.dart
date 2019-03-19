@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../providers/tmesheet.dart';
 import './calendar_screen.dart';
+import './widgets/assorted_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String ROUTE = "/";
@@ -37,6 +38,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _dirtyEmail = true;
         if (validateEmail(_emailController.text) == null)
           _emailSuffixIcon = Icons.done;
+        else
+          _emailSuffixIcon = Icons.help_outline;
       });
     });
 
@@ -45,6 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _dirtyPassword = true;
         if (validatePassword(_passwordController.text) == null)
           _passwordSuffixIcon = Icons.done;
+        else
+          _passwordSuffixIcon = Icons.help_outline;
       });
     });
   }
@@ -58,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     ];
 
     if (_logOnInProgress) {
-      childWidgets.add(_inProgressIndicator);
+      childWidgets.add(AssortedWidgets.progressIndicator);
     }
 
     return Scaffold(
@@ -158,40 +163,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      );
-
-  Widget get _inProgressIndicator => Stack(
-        children: <Widget>[
-          Opacity(
-            opacity: 0.5,
-            child: ModalBarrier(
-              dismissible: false,
-              color: Colors.grey,
-            ),
-          ),
-          Center(
-            child: Card(
-              elevation: 8,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: 10.0,
-                  bottom: 10.0,
-                  left: 25.0,
-                  right: 25.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    CircularProgressIndicator(),
-                    SizedBox(width: 15.0),
-                    Text('In progress')
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       );
 
   String validateEmail(String val) {

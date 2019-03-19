@@ -32,16 +32,13 @@ class CalendarModel extends Model {
 
   String get headingDisplayStr => _currentTimeSheetPeriod == null
       ? ''
-      : DateFormat.MMMM().format(_currentTimeSheetPeriod.periodStart);
+      : DateFormat.yMMMM().format(_currentTimeSheetPeriod.periodStart);
 
   String get subHeadingDisplayStr => _currentTimeSheetPeriod == null
       ? ''
       : DateFormat.MMMd().format(_currentTimeSheetPeriod.periodStart) +
           ' - ' +
-          DateFormat.MMMd().format(_currentTimeSheetPeriod.periodEnd) +
-          ', ' +
-          DateFormat(DateFormat.YEAR)
-              .format(_currentTimeSheetPeriod.periodStart);
+          DateFormat.MMMd().format(_currentTimeSheetPeriod.periodEnd) ;
 
   ///
   /// constructor

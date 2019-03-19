@@ -25,7 +25,7 @@ class TimeSheetProvider {
   }
 
   Future<bool> isLoggedIn() async {
-    return Future.delayed(Duration(microseconds: 500), () => false);
+    return Future.delayed(Duration(microseconds: 500), () => true);
   }
 
   Future<bool> logIn(String email, String password) {
@@ -40,7 +40,28 @@ class TimeSheetProvider {
 
     for (DateTime d in allDays) {
       final dateInfo = retVal.ammendDateInfo(d);
-      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()..id = 'abc');
+      dateInfo.ammendTimeEntryInfo(
+        TimeEntryInfo()
+          ..id = 'abc'
+          ..clientCodes = <Info>[
+            Info('0', 'ACC'),
+            Info('1', 'iCare'),
+            Info('3', 'MOJ'),
+            Info('4', 'Internal')
+          ]
+          ..selectedClientCodeId = '4'
+          ..projectCodes = <Info>[
+            Info('0', 'Administration'),
+            Info('1', 'Business Development'),
+            Info('3', 'Leave'),
+          ]
+          ..selectedProjectCodeId = '3'
+          ..taskCodes = <Info>[
+            Info('0', 'Adminstration|Non-Billable Time'),
+            Info('1', 'Adminstration|Staff Update Sessions')
+          ]
+          ..selectedTaskCodeId = '0',
+      );
     }
     return retVal;
   }
