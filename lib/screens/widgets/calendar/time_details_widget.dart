@@ -74,7 +74,7 @@ class _TimeEntryDetailsState extends State<TimeEntryDetails> {
         width: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.blue[400],
+          color: Theme.of(context).accentColor,
           boxShadow: [
             BoxShadow(
               color: Colors.grey[500],

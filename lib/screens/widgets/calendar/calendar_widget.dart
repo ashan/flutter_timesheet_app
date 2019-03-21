@@ -178,7 +178,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           padding: EdgeInsets.all(15.0),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).accentColor.withOpacity(0.5),
+            color: Theme.of(context).accentColor,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey[500],
+                offset: Offset(0.0, 2.5),
+                blurRadius: 5.5,
+              ),
+            ],
           ),
         ),
       );
