@@ -15,9 +15,10 @@ void main() {
 class CalendarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var calendar = CalendarModel.init();
+    final calendar = CalendarModel();
     return MaterialApp(
-      theme: ThemeData(fontFamily: 'Roboto'),
+      theme: ThemeData(
+          primaryColor: Color.fromRGBO(58, 66, 86, 1.0), fontFamily: 'Roboto'),
       title: 'Time Sheet',
       initialRoute: LoginScreen.ROUTE,
       routes: <String, WidgetBuilder>{

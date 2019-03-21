@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import './date_info.dart';
 import 'package:date_utils/date_utils.dart';
+import './time_entry_info.dart';
 
 class TimeSheetPeriodException implements Exception {
   String cause;
@@ -12,16 +13,23 @@ class TimeSheetPeriod {
   DateTime periodEnd;
   Map<DateTime, DateInfo> _periodDays = {};
   Map<DateTime, DateInfo> _selectedDays = {};
+  List<TimeEntryInfo> _allTimeEntryInfo = [];
 
   ///
   ///getters
   ///
   Map<DateTime, DateInfo> get periodDays => _periodDays;
   Map<DateTime, DateInfo> get selectedDates => _selectedDays;
+  List<TimeEntryInfo> get allTimeEntryInfo => _allTimeEntryInfo;
 
-  /// ------------- puboic
-  /// 
-
+  /// ------------- public
+  ///
+  ///
+  double get totalHours{
+    double total = 0.0;
+    _allTimeEntryInfo.forEach((te) => total += te.hours);
+    return total;
+  }
 
   DateInfo ammendDateInfo(DateTime date) {
     if (isDateWithinPeriod(date))
@@ -30,9 +38,12 @@ class TimeSheetPeriod {
   }
 
   DateInfo selectDay(DateTime date, {bool clearSelectedDaysFirst: true}) {
-    if (clearSelectedDaysFirst) clearSelectedDays();
+    if (clearSelectedDaysFirst) {
+      clearSelectedDays();
+    }
     final dateInfo = _periodDays[date];
     if (dateInfo != null) {
+      _allTimeEntryInfo.addAll(dateInfo.timeEntryDetails.values);
       return _selectedDays.putIfAbsent(date, () => dateInfo);
     }
     throw TimeSheetPeriodException('$date is not in _periodDays');
@@ -45,7 +56,10 @@ class TimeSheetPeriod {
     return _selectedDays;
   }
 
-  void clearSelectedDays() => _selectedDays = {};
+  void clearSelectedDays() {
+    _selectedDays = {};
+    _allTimeEntryInfo = [];
+  }
 
   bool isSelectedDate(DateTime date) => _selectedDays.containsKey(date);
 

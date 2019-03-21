@@ -3,20 +3,22 @@ class TimeEntryInfo {
 
   List<Info> clientCodes;
   String selectedClientCodeId;
-  Info get selectedClientCodeInfo =>
+  Info get selectedClient =>
       clientCodes.firstWhere((Info c) => c.id == selectedClientCodeId);
-  set selectedClient(Info selectedClient) => selectedClientCodeId =selectedClient.id;
+  set selectedClient(Info selectedClient) =>
+      selectedClientCodeId = selectedClient.id;
 
   List<Info> projectCodes;
   String selectedProjectCodeId;
-  Info get selectedProjectCodeInfo =>
+  Info get selectedProject =>
       projectCodes.firstWhere((Info p) => p.id == selectedProjectCodeId);
-  
 
   List<Info> taskCodes;
   String selectedTaskCodeId;
-  Info get selectedTaskCodeInfo =>
-      taskCodes.firstWhere((Info t) => t.code == selectedProjectCodeId);
+  Info get selectedTaskCode =>
+      taskCodes.firstWhere((Info t) => t.id == selectedTaskCodeId);
+
+  double hours = 0.0;
 }
 
 class Info {

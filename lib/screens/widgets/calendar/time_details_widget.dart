@@ -2,82 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/calendar.dart';
-import '../../../models/date_info.dart';
+import '../../../models/time_entry_info.dart';
 
-class TimeDetailsWidget extends StatefulWidget {
+class TimeEntryDetails extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _TimeDetailsWidgetState();
+    return _TimeEntryDetailsState();
   }
 }
 
-class _TimeDetailsWidgetState extends State<TimeDetailsWidget> {
-  static double _timeEntryCardHeight = 250;
-  var _openTimeEntryDetails = true;
-  double _headerOpenHeight = 50;
-  double _headerCloseHeight = 20;
-  double _bodyHeight = _timeEntryCardHeight;
-
+class _TimeEntryDetailsState extends State<TimeEntryDetails> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Column(
-          children: <Widget>[_cardHeader, _cardBody],
-        ),
-      ),
-    );
-  }
-
-  Widget get _cardHeader {
-    final heading = Text(
-      'Time Entry Details',
-      style: Theme.of(context)
-          .textTheme
-          .title
-          .copyWith(fontWeight: FontWeight.w500),
-    );
-
-    final closeArrow = IconButton(
-      padding: EdgeInsets.all(0),
-      icon: Icon(_openTimeEntryDetails
-          ? Icons.keyboard_arrow_up
-          : Icons.keyboard_arrow_down),
-      onPressed: () {
-        setState(
-          () {
-            _bodyHeight = _openTimeEntryDetails ? 0 : _timeEntryCardHeight;
-            _openTimeEntryDetails = !_openTimeEntryDetails;
-          },
-        );
-      },
-    );
-
-    return AnimatedContainer(
-      curve: Curves.easeOut,
-      duration: Duration(milliseconds: 50),
-      height: _openTimeEntryDetails ? _headerOpenHeight : _headerCloseHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[heading, closeArrow],
-      ),
-    );
-  }
-
-  Widget get _cardBody {
     return ScopedModelDescendant<CalendarModel>(
       builder: (BuildContext context, Widget widget, CalendarModel calendar) {
-        return Expanded(
-          child: ListView.builder(
+        return NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return _sliverAppBar(calendar);
+          },
+          body: ListView.builder(
             shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            itemCount: calendar.currentTimeSheetPeriod.selectedDates.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildSelectedDateCard(calendar
-                  .currentTimeSheetPeriod.selectedDates.values
-                  .toList()[index]);
+            itemCount: calendar.currentTimeSheetPeriod.allTimeEntryInfo.length,
+            itemBuilder: (BuildContext context, int i) {
+              final entryInfo =
+                  calendar.currentTimeSheetPeriod.allTimeEntryInfo[i];
+              return timeEntryDetailFor(entryInfo);
             },
           ),
         );
@@ -85,33 +34,65 @@ class _TimeDetailsWidgetState extends State<TimeDetailsWidget> {
     );
   }
 
-  Widget _buildSelectedDateCard(DateInfo selectedDate) {
-    var header = Row(
+  List<Widget> _sliverAppBar(CalendarModel calendar) {
+    if (calendar.currentTimeSheetPeriod.allTimeEntryInfo.isEmpty) return [];
+    return <Widget>[
+      SliverAppBar(
+        pinned: true,
+        automaticallyImplyLeading: false,
+        textTheme: Theme.of(context).textTheme,
+        backgroundColor: Theme.of(context).cardColor,
+        forceElevated: true,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            new Text(
+              'Total Time: ${calendar.currentTimeSheetPeriod.totalHours}',
+              style: Theme.of(context).textTheme.subtitle,
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  Widget timeEntryDetailFor(TimeEntryInfo timeInfo) {
+    var client = CircleAvatar(
+      child: Text(timeInfo.selectedClient.toString()),
+      radius: 30,
+    );
+
+    var project = Text(
+      timeInfo.selectedProject.toString(),
+      style: TextStyle(fontWeight: FontWeight.bold),
+    );
+
+    var taskPlusTime = Row(
       children: <Widget>[
-        Text(
-          selectedDate.toString(),
+        Expanded(child: Text(timeInfo.selectedTaskCode.toString())),
+        Container(
+          padding: EdgeInsets.only(left: 5),
+          child: Text(timeInfo.hours.toString()),
+          decoration: BoxDecoration(
+              border:
+                  Border(left: BorderSide(width: 2.0, color: Colors.black))),
         ),
       ],
     );
-
-    var client = DropdownButton(
-      value: selectedDate.timeEntryDetails[0].id,
-      items: selectedDate.timeEntryDetails[0].clientCodes
-          .map((cc) => DropdownMenuItem(
-                value: cc.id,
-                child: Text(cc.code),
-              )),
+    var moreInfo = IconButton(
+      icon: Icon(Icons.keyboard_arrow_right),
+      onPressed: () {},
     );
 
     return Card(
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: <Widget>[
-            header,
-            client,
-          ],
-        ),
+      margin: EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+      child: ListTile(
+        contentPadding:
+            EdgeInsets.only(left: 0.0, top: 10.0, bottom: 10.0, right: 10.0),
+        title: project,
+        leading: client,
+        subtitle: taskPlusTime,
+        trailing: moreInfo,
       ),
     );
   }
