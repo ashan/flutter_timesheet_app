@@ -57,10 +57,38 @@ class _TimeEntryDetailsState extends State<TimeEntryDetails> {
   }
 
   Widget timeEntryDetailFor(TimeEntryInfo timeInfo) {
-    var client = CircleAvatar(
-      child: Text(timeInfo.selectedClient.toString()),
-      radius: 30,
-    );
+    var clientCode = timeInfo.selectedClient.toString();
+    print(clientCode);
+    if (clientCode.length > 10) {
+      final clientCodeArray = clientCode.split(' ');
+      clientCode = '';
+      for (int i = 0;
+          i < (clientCodeArray.length < 5 ? clientCodeArray.length : 5);
+          i++) {
+        if (clientCodeArray[i].isNotEmpty)
+          clientCode += clientCodeArray[i].substring(0, 1);
+      }
+    }
+    var client = Container(
+        height: 50,
+        width: 50,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.blue[400],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[500],
+              offset: Offset(0.0, 5.5),
+              blurRadius: 5.5,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            clientCode,
+            style: TextStyle(color: Colors.white),
+          ),
+        ));
 
     var project = Text(
       timeInfo.selectedProject.toString(),
@@ -81,11 +109,14 @@ class _TimeEntryDetailsState extends State<TimeEntryDetails> {
     );
     var moreInfo = IconButton(
       icon: Icon(Icons.keyboard_arrow_right),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).push(TutorialOverlay(timeInfo));
+      },
     );
 
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+      elevation: 8,
+      margin: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
       child: ListTile(
         contentPadding:
             EdgeInsets.only(left: 0.0, top: 10.0, bottom: 10.0, right: 10.0),
@@ -93,6 +124,94 @@ class _TimeEntryDetailsState extends State<TimeEntryDetails> {
         leading: client,
         subtitle: taskPlusTime,
         trailing: moreInfo,
+      ),
+    );
+  }
+}
+
+class TutorialOverlay extends ModalRoute<void> {
+  TimeEntryInfo timeEntryInfo;
+  @override
+  Duration get transitionDuration => Duration(milliseconds: 500);
+
+  @override
+  bool get opaque => false;
+
+  @override
+  bool get barrierDismissible => false;
+
+  @override
+  Color get barrierColor => Colors.black.withOpacity(0.5);
+
+  @override
+  String get barrierLabel => null;
+
+  @override
+  bool get maintainState => true;
+
+  TutorialOverlay(this.timeEntryInfo);
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    // This makes sure that text and other content follows the material style
+    return Material(
+      type: MaterialType.transparency,
+      // make sure that the overlay content is not cut off
+      child: SafeArea(
+        child: _buildOverlayContent(context),
+      ),
+    );
+  }
+
+  Widget _buildOverlayContent(BuildContext context) {
+    return Center(
+      child: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.person),
+                SizedBox(width: 10.0),
+                DropdownButton(
+                  hint: Text('Client Code'),
+                  items: timeEntryInfo.clientCodes
+                      .map(
+                        (cc) => DropdownMenuItem(
+                              child: Text(cc.code),
+                              value: cc.id,
+                            ),
+                      )
+                      .toList(),
+                  onChanged: (String id) =>
+                      timeEntryInfo.selectedClientWithID = id,
+                ),
+              ],
+            ),
+            RaisedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Dismiss'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    // You can add your own animations for the overlay content
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(
+        scale: animation,
+        child: child,
       ),
     );
   }

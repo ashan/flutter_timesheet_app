@@ -33,7 +33,7 @@ class CalendarApp extends StatelessWidget {
             model: calendar,
             child: CalendarScreen(),
           );
-        }
+        },
       },
     );
   }

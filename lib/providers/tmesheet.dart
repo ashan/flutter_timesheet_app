@@ -130,7 +130,7 @@ class TimeSheetProvider {
             Info('0', 'ACC'),
             Info('1', 'iCare'),
             Info('3', 'MOJ'),
-            Info('4', 'Internal')
+            Info('4', 'Fairway Resolution Limited')
           ]
           ..selectedClientCodeId = '4'
           ..projectCodes = <Info>[

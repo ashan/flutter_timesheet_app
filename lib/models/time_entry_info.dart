@@ -5,6 +5,7 @@ class TimeEntryInfo {
   String selectedClientCodeId;
   Info get selectedClient =>
       clientCodes.firstWhere((Info c) => c.id == selectedClientCodeId);
+  set selectedClientWithID(String id) => selectedClientCodeId = id;
   set selectedClient(Info selectedClient) =>
       selectedClientCodeId = selectedClient.id;
 
