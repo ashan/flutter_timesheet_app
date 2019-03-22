@@ -6,6 +6,7 @@ import 'package:scoped_model/scoped_model.dart';
 import './models/calendar.dart';
 import './screens/login_screen.dart';
 import './screens/calendar_screen.dart';
+import './screens/time_entry_overlay.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;

@@ -100,95 +100,99 @@ class TimeSheetProvider {
           ]
           ..selectedTaskCodeId = '1',
       );
-      dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
-          ..id = 'jkl'
-          ..clientCodes = <Info>[
-            Info('0', 'ACC'),
-            Info('1', 'iCare'),
-            Info('3', 'MOJ'),
-            Info('4', 'Internal')
-          ]
-          ..selectedClientCodeId = '3'
-          ..projectCodes = <Info>[
-            Info('0', 'Administration'),
-            Info('1', 'Business Development'),
-            Info('3', 'Leave'),
-          ]
-          ..selectedProjectCodeId = '1'
-          ..taskCodes = <Info>[
-            Info('0', 'Adminstration|Non-Billable Time'),
-            Info('1', 'Adminstration|Staff Update Sessions')
-          ]
-          ..selectedTaskCodeId = '1',
-      );
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+        ..id = 'jkl'
+        ..clientCodes = <Info>[
+          Info('0', 'ACC'),
+          Info('1', 'iCare'),
+          Info('3', 'MOJ'),
+          Info('4', 'Internal')
+        ]
+        ..selectedClientCodeId = '3'
+        ..projectCodes = <Info>[
+          Info('0', 'Administration'),
+          Info('1', 'Business Development'),
+          Info('3', 'Leave'),
+        ]
+        ..selectedProjectCodeId = '1'
+        ..taskCodes = <Info>[
+          Info('0', 'Adminstration|Non-Billable Time'),
+          Info('1', 'Adminstration|Staff Update Sessions')
+        ]
+        ..selectedTaskCodeId = '1'
+        ..hours = 2
+        ..notes = 'Test notes'
+        ..isEditable = true);
 
-      dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
-          ..id = 'mno'
-          ..clientCodes = <Info>[
-            Info('0', 'ACC'),
-            Info('1', 'iCare'),
-            Info('3', 'MOJ'),
-            Info('4', 'Fairway Resolution Limited')
-          ]
-          ..selectedClientCodeId = '4'
-          ..projectCodes = <Info>[
-            Info('0', 'Administration'),
-            Info('1', 'Business Development'),
-            Info('3', 'Leave'),
-          ]
-          ..selectedProjectCodeId = '1'
-          ..taskCodes = <Info>[
-            Info('0', 'Adminstration|Non-Billable Time'),
-            Info('1', 'Adminstration|Staff Update Sessions')
-          ]
-          ..selectedTaskCodeId = '1',
-      );
-      dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
-          ..id = 'pqr'
-          ..clientCodes = <Info>[
-            Info('0', 'ACC'),
-            Info('1', 'iCare'),
-            Info('3', 'MOJ'),
-            Info('4', 'Internal')
-          ]
-          ..selectedClientCodeId = '0'
-          ..projectCodes = <Info>[
-            Info('0', 'Administration'),
-            Info('1', 'Business Development'),
-            Info('3', 'Leave'),
-          ]
-          ..selectedProjectCodeId = '1'
-          ..taskCodes = <Info>[
-            Info('0', 'Adminstration|Non-Billable Time'),
-            Info('1', 'Adminstration|Staff Update Sessions')
-          ]
-          ..selectedTaskCodeId = '1',
-      );
-            dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
-          ..id = 'stu'
-          ..clientCodes = <Info>[
-            Info('0', 'ACC'),
-            Info('1', 'iCare'),
-            Info('3', 'MOJ'),
-            Info('4', 'Internal')
-          ]
-          ..selectedClientCodeId = '1'
-          ..projectCodes = <Info>[
-            Info('0', 'Administration'),
-            Info('1', 'Business Development'),
-            Info('3', 'Leave'),
-          ]
-          ..selectedProjectCodeId = '1'
-          ..taskCodes = <Info>[
-            Info('0', 'Adminstration|Non-Billable Time'),
-            Info('1', 'Adminstration|Staff Update Sessions')
-          ]
-          ..selectedTaskCodeId = '1',
-      );
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+        ..id = 'mno'
+        ..clientCodes = <Info>[
+          Info('0', 'ACC'),
+          Info('1', 'iCare'),
+          Info('3', 'MOJ'),
+          Info('4', 'Fairway Resolution Limited')
+        ]
+        ..selectedClientCodeId = '4'
+        ..projectCodes = <Info>[
+          Info('0', 'Administration'),
+          Info('1', 'Business Development'),
+          Info('3', 'Leave'),
+        ]
+        ..selectedProjectCodeId = '1'
+        ..taskCodes = <Info>[
+          Info('0', 'Adminstration|Non-Billable Time'),
+          Info('1', 'Adminstration|Staff Update Sessions')
+        ]
+        ..selectedTaskCodeId = '1'
+        ..hours = 2
+        ..notes = 'Test notes'
+        ..isEditable = false);
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+        ..id = 'pqr'
+        ..clientCodes = <Info>[
+          Info('0', 'ACC'),
+          Info('1', 'iCare'),
+          Info('3', 'MOJ'),
+          Info('4', 'Internal')
+        ]
+        ..selectedClientCodeId = '0'
+        ..projectCodes = <Info>[
+          Info('0', 'Administration'),
+          Info('1', 'Business Development'),
+          Info('3', 'Leave'),
+        ]
+        ..selectedProjectCodeId = '1'
+        ..taskCodes = <Info>[
+          Info('0', 'Adminstration|Non-Billable Time'),
+          Info('1', 'Adminstration|Staff Update Sessions')
+        ]
+        ..selectedTaskCodeId = '1'
+        ..hours = 2
+        ..notes = 'Test notes'
+        ..isEditable = true);
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+        ..id = 'stu'
+        ..clientCodes = <Info>[
+          Info('0', 'ACC'),
+          Info('1', 'iCare'),
+          Info('3', 'MOJ'),
+          Info('4', 'Internal')
+        ]
+        ..selectedClientCodeId = '1'
+        ..projectCodes = <Info>[
+          Info('0', 'Administration'),
+          Info('1', 'Business Development'),
+          Info('3', 'Leave'),
+        ]
+        ..selectedProjectCodeId = '1'
+        ..taskCodes = <Info>[
+          Info('0', 'Adminstration|Non-Billable Time'),
+          Info('1', 'Adminstration|Staff Update Sessions')
+        ]
+        ..selectedTaskCodeId = '1'
+        ..hours = 2
+        ..notes = 'Test notes'
+        ..isEditable = false);
     }
     return retVal;
   }

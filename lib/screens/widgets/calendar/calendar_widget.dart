@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:date_utils/date_utils.dart';
 import '../../../models/calendar.dart';
-import './time_details_widget.dart';
+import './time_entry_summary_widget.dart';
 
 class CalendarWidget extends StatefulWidget {
   static const String ROUTE = "CalendarScreen";
@@ -65,7 +65,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                           .currentTimeSheetPeriod.periodDays.keys
                           .toList()
                           .indexOf(DateTime.now());
-                      _scrollController.animateTo(todayIndex * _dateWidth,
+                      _scrollController.animateTo((todayIndex * _dateWidth),
                           duration: Duration(seconds: 2), curve: Curves.ease);
                     },
                   ),
@@ -79,15 +79,15 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           ),
         ),
         Expanded(
-          child: TimeEntryDetails(),
+          child: TimeEntryDetailsSummaryWidget(),
         )
       ],
     );
   }
 
   Widget _datesWidget(CalendarModel calendar) {
-    final leftPadding = calendar.isPreviousPeriodLoading ? 10.0 : 50.0;
-    final rightPaddingPadding = calendar.isNextPeriodLoading ? 10.0 : 50.0;
+    final leftPadding = calendar.isPreviousPeriodLoading ? 20.0 : 20.0;
+    final rightPaddingPadding = calendar.isNextPeriodLoading ? 20.0 : 20.0;
     var stackChildren = <Widget>[
       Padding(
         padding: EdgeInsets.only(left: leftPadding, right: rightPaddingPadding),

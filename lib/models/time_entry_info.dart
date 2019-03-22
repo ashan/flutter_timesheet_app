@@ -1,4 +1,5 @@
 class TimeEntryInfo {
+  bool isEditable = false;
   String id;
 
   List<Info> clientCodes;
@@ -20,6 +21,8 @@ class TimeEntryInfo {
       taskCodes.firstWhere((Info t) => t.id == selectedTaskCodeId);
 
   double hours = 0.0;
+
+  String notes;
 }
 
 class Info {
