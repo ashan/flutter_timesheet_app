@@ -1,5 +1,7 @@
+import './date_info.dart';
+
 class TimeEntryInfo {
-  bool isEditable = false;
+  DateInfo dateInfo;
   String id;
 
   List<Info> clientCodes;
@@ -23,6 +25,9 @@ class TimeEntryInfo {
   double hours = 0.0;
 
   String notes;
+
+  TimeEntryInfo(this.dateInfo);
+  bool get isEditable => dateInfo.isEditable;
 }
 
 class Info {

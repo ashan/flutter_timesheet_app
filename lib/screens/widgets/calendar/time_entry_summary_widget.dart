@@ -22,6 +22,7 @@ class _TimeEntryDetailsSummaryWidgetState
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return _sliverAppBar(calendar);
           },
+
           body: ListView.builder(
             shrinkWrap: true,
             itemCount: calendar.currentTimeSheetPeriod.allTimeEntryInfo.length,
@@ -40,7 +41,10 @@ class _TimeEntryDetailsSummaryWidgetState
     if (calendar.currentTimeSheetPeriod.allTimeEntryInfo.isEmpty) return [];
     return <Widget>[
       SliverAppBar(
-        pinned: true,
+        snap: true,
+        primary: false,
+        floating: true,
+        // pinned: true,
         automaticallyImplyLeading: false,
         textTheme: Theme.of(context).textTheme,
         backgroundColor: Theme.of(context).cardColor,

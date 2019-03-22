@@ -8,12 +8,13 @@ class TimeSheetPeriodException implements Exception {
   TimeSheetPeriodException(this.cause);
 }
 
-class TimeSheetPeriod {
+class TimeSheetPeriodInfo {
   DateTime periodStart;
   DateTime periodEnd;
   Map<DateTime, DateInfo> _periodDays = {};
   Map<DateTime, DateInfo> _selectedDays = {};
   List<TimeEntryInfo> _allTimeEntryInfo = [];
+  bool isEditable = false;
 
   ///
   ///getters
@@ -25,7 +26,7 @@ class TimeSheetPeriod {
   /// ------------- public
   ///
   ///
-  double get totalHours{
+  double get totalHours {
     double total = 0.0;
     _allTimeEntryInfo.forEach((te) => total += te.hours);
     return total;
@@ -33,7 +34,7 @@ class TimeSheetPeriod {
 
   DateInfo ammendDateInfo(DateTime date) {
     if (isDateWithinPeriod(date))
-      return _periodDays.putIfAbsent(date, () => DateInfo(date));
+      return _periodDays.putIfAbsent(date, () => DateInfo(date, this));
     throw TimeSheetPeriodException('$date is not within period');
   }
 

@@ -30,6 +30,31 @@ class _CalendarScreenState extends State<CalendarScreen> {
             title: Text('Calendar App'),
             elevation: 8.0,
           ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: calendar.currentTimeSheetPeriod.isEditable ? FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {},
+          ): null,
+          bottomNavigationBar: BottomAppBar(
+            elevation: 8,
+            shape: CircularNotchedRectangle(),
+            notchMargin: 4.0,
+            child: new Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
           body: Stack(
             children: children,
           ),
@@ -37,4 +62,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       },
     );
   }
+
+
 }

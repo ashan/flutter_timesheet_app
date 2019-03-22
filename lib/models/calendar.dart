@@ -9,8 +9,8 @@ class CalendarModel extends Model {
   bool _isPreviousPeriodLoading = false;
   bool _isNextPeriodLoading = false;
 
-  Map<DateTime, TimeSheetPeriod> _timeSheetPeriodCache = {};
-  TimeSheetPeriod _currentTimeSheetPeriod;
+  Map<DateTime, TimeSheetPeriodInfo> _timeSheetPeriodCache = {};
+  TimeSheetPeriodInfo _currentTimeSheetPeriod;
 
   ///
   /// getters
@@ -23,7 +23,7 @@ class CalendarModel extends Model {
       _isNextPeriodLoading &&
       !_timeSheetPeriodCache.containsKey(_nextPeriodStartDate);
 
-  TimeSheetPeriod get currentTimeSheetPeriod => _currentTimeSheetPeriod;
+  TimeSheetPeriodInfo get currentTimeSheetPeriod => _currentTimeSheetPeriod;
 
   String get selectedDateStr {
     var orderedSelectedDates = _currentTimeSheetPeriod.selectedDates.keys
@@ -52,14 +52,14 @@ class CalendarModel extends Model {
   CalendarModel({DateTime initDate}) {
     initDate = initDate ?? DateTime.now();
     // fake period until loading completed from server
-    final periodStartDate = TimeSheetPeriod.periodStartDateFor(initDate);
+    final periodStartDate = TimeSheetPeriodInfo.periodStartDateFor(initDate);
     _currentTimeSheetPeriod =
         TimeSheetProvider().createFakePeriod(periodStartDate);
   }
 
   init({DateTime initDate}) async {
     initDate = initDate ?? DateTime.now();
-    final periodStartDate = TimeSheetPeriod.periodStartDateFor(initDate);
+    final periodStartDate = TimeSheetPeriodInfo.periodStartDateFor(initDate);
 
     await _jumpToPeriodStartingWith(periodStartDate);
   }
@@ -86,32 +86,32 @@ class CalendarModel extends Model {
       _jumpToPeriodStartingWith(_previousPeriodStartDate);
 
   void onTodayTap() => _jumpToPeriodStartingWith(
-      TimeSheetPeriod.periodStartDateFor(DateTime.now()));
+      TimeSheetPeriodInfo.periodStartDateFor(DateTime.now()));
 
   /// ------------- private methods --------------------------------//
   ///
   DateTime get _nextPeriodStartDate {
     final nextPeriodStartDate =
         _currentTimeSheetPeriod.periodEnd.add(Duration(days: 1));
-    return TimeSheetPeriod.periodStartDateFor(nextPeriodStartDate);
+    return TimeSheetPeriodInfo.periodStartDateFor(nextPeriodStartDate);
   }
 
   DateTime get _previousPeriodStartDate {
     final previousPeriodEndDate =
         _currentTimeSheetPeriod.periodStart.subtract(Duration(days: 1));
-    return TimeSheetPeriod.periodStartDateFor(previousPeriodEndDate);
+    return TimeSheetPeriodInfo.periodStartDateFor(previousPeriodEndDate);
   }
 
   Future<bool> _jumpToPeriodStartingWith(DateTime periodStartDate) async {
     _isBusy = true;
-    final previousPeriodStart = TimeSheetPeriod.periodStartDateFor(
+    final previousPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
         periodStartDate.subtract(Duration(days: 1)));
 
     _isPreviousPeriodLoading =
         !_timeSheetPeriodCache.containsKey(previousPeriodStart);
 
-    final nextPeriodStart = TimeSheetPeriod.periodStartDateFor(
-        TimeSheetPeriod.periodEndDateFor(periodStartDate)
+    final nextPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
+        TimeSheetPeriodInfo.periodEndDateFor(periodStartDate)
             .add(Duration(days: 1)));
 
     _isNextPeriodLoading = !_timeSheetPeriodCache.containsKey(nextPeriodStart);
@@ -119,7 +119,7 @@ class CalendarModel extends Model {
 
     if (_isPreviousPeriodLoading) {
       TimeSheetProvider().loadTimeSheetFor(_previousPeriodStartDate).then(
-        (TimeSheetPeriod tp) {
+        (TimeSheetPeriodInfo tp) {
           _timeSheetPeriodCache.putIfAbsent(_previousPeriodStartDate, () => tp);
           _isPreviousPeriodLoading = false;
           notifyListeners();
@@ -129,7 +129,7 @@ class CalendarModel extends Model {
     if (_isNextPeriodLoading) {
       TimeSheetProvider()
           .loadTimeSheetFor(_nextPeriodStartDate)
-          .then((TimeSheetPeriod tp) {
+          .then((TimeSheetPeriodInfo tp) {
         _timeSheetPeriodCache.putIfAbsent(_nextPeriodStartDate, () => tp);
         _isNextPeriodLoading = false;
         notifyListeners();

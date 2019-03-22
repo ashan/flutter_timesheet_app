@@ -7,7 +7,7 @@ class TimeSheetProvider {
   TimeSheetProvider._internal();
   factory TimeSheetProvider() => _timeSheetProvider;
 
-  Future<TimeSheetPeriod> loadTimeSheetFor(DateTime periodStartDate) async {
+  Future<TimeSheetPeriodInfo> loadTimeSheetFor(DateTime periodStartDate) async {
     // is loggeed in?
     if (await isLoggedIn()) {
       // TODO load from server
@@ -26,16 +26,17 @@ class TimeSheetProvider {
     return Future.delayed(Duration(seconds: 5), () => true);
   }
 
-  TimeSheetPeriod createFakePeriod(DateTime periodStartDate) {
-    final allDays = TimeSheetPeriod.allDatesOfPeriodFor(periodStartDate);
-    final retVal = TimeSheetPeriod()
+  TimeSheetPeriodInfo createFakePeriod(DateTime periodStartDate) {
+    final allDays = TimeSheetPeriodInfo.allDatesOfPeriodFor(periodStartDate);
+    final retVal = TimeSheetPeriodInfo()
       ..periodStart = periodStartDate
-      ..periodEnd = allDays.last;
+      ..periodEnd = allDays.last
+      ..isEditable = false;
 
     for (DateTime d in allDays) {
       final dateInfo = retVal.ammendDateInfo(d);
       dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
+        TimeEntryInfo(dateInfo)
           ..id = 'abc'
           ..clientCodes = <Info>[
             Info('0', 'ACC'),
@@ -57,7 +58,7 @@ class TimeSheetProvider {
           ..selectedTaskCodeId = '0',
       );
       dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
+        TimeEntryInfo(dateInfo)
           ..id = 'def'
           ..clientCodes = <Info>[
             Info('0', 'ACC'),
@@ -79,7 +80,7 @@ class TimeSheetProvider {
           ..selectedTaskCodeId = '1',
       );
       dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo()
+        TimeEntryInfo(dateInfo)
           ..id = 'ghi'
           ..clientCodes = <Info>[
             Info('0', 'ACC'),
@@ -100,7 +101,7 @@ class TimeSheetProvider {
           ]
           ..selectedTaskCodeId = '1',
       );
-      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo(dateInfo)
         ..id = 'jkl'
         ..clientCodes = <Info>[
           Info('0', 'ACC'),
@@ -122,9 +123,9 @@ class TimeSheetProvider {
         ..selectedTaskCodeId = '1'
         ..hours = 2
         ..notes = 'Test notes'
-        ..isEditable = true);
+       );
 
-      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo(dateInfo)
         ..id = 'mno'
         ..clientCodes = <Info>[
           Info('0', 'ACC'),
@@ -145,9 +146,8 @@ class TimeSheetProvider {
         ]
         ..selectedTaskCodeId = '1'
         ..hours = 2
-        ..notes = 'Test notes'
-        ..isEditable = false);
-      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+        ..notes = 'Test notes');
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo(dateInfo)
         ..id = 'pqr'
         ..clientCodes = <Info>[
           Info('0', 'ACC'),
@@ -168,9 +168,8 @@ class TimeSheetProvider {
         ]
         ..selectedTaskCodeId = '1'
         ..hours = 2
-        ..notes = 'Test notes'
-        ..isEditable = true);
-      dateInfo.ammendTimeEntryInfo(TimeEntryInfo()
+        ..notes = 'Test notes');
+      dateInfo.ammendTimeEntryInfo(TimeEntryInfo(dateInfo)
         ..id = 'stu'
         ..clientCodes = <Info>[
           Info('0', 'ACC'),
@@ -192,7 +191,7 @@ class TimeSheetProvider {
         ..selectedTaskCodeId = '1'
         ..hours = 2
         ..notes = 'Test notes'
-        ..isEditable = false);
+        );
     }
     return retVal;
   }
