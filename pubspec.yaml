@@ -25,6 +25,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   date_utils:
   scoped_model:
+  http:
+  html:
 
 dev_dependencies:
   flutter_test:

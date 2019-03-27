@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import './date_info.dart';
 import 'package:date_utils/date_utils.dart';
@@ -9,12 +10,17 @@ class TimeSheetPeriodException implements Exception {
 }
 
 class TimeSheetPeriodInfo {
+  static const OPEN = "Not Submitted";
+  static const SUBMITTED = "received";
+  String status = TimeSheetPeriodInfo.OPEN;
+
   DateTime periodStart;
   DateTime periodEnd;
   Map<DateTime, DateInfo> _periodDays = {};
   Map<DateTime, DateInfo> _selectedDays = {};
   List<TimeEntryInfo> _allTimeEntryInfo = [];
-  bool isEditable = false;
+
+  List<Client> possibleClientProjectTaskCombinations = [];
 
   ///
   ///getters
@@ -22,9 +28,17 @@ class TimeSheetPeriodInfo {
   Map<DateTime, DateInfo> get periodDays => _periodDays;
   Map<DateTime, DateInfo> get selectedDates => _selectedDays;
   List<TimeEntryInfo> get allTimeEntryInfo => _allTimeEntryInfo;
+  bool get isEditable => status == TimeSheetPeriodInfo.OPEN;
 
-  /// ------------- public
   ///
+  /// Constructors
+  ///
+  TimeSheetPeriodInfo({@required this.periodStart, this.periodEnd}) {
+    _initPeriodDays();
+  }
+
+  ///
+  /// ------------- public
   ///
   double get totalHours {
     double total = 0.0;
@@ -105,4 +119,25 @@ class TimeSheetPeriodInfo {
         ? DateTime(date.year, date.month, 15)
         : Utils.lastDayOfMonth(date);
   }
+
+  _initPeriodDays() {
+    DateTime d = periodStart;
+    while (d.compareTo(periodEnd) <= 0) {
+      ammendDateInfo(d);
+      d = d.add(Duration(days: 1));
+    }
+  }
+}
+
+class Client extends Info {
+  Client({@required String id, @required String code})
+      : super(id: id, code: code);
+
+  List<Project> projects = [];
+}
+
+class Project extends Info {
+  List<Info> tasks = [];
+  Project({@required String id, @required String code})
+      : super(id: id, code: code);
 }

@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import './date_info.dart';
 
 class TimeEntryInfo {
   DateInfo dateInfo;
   String id;
 
-  List<Info> clientCodes;
+  List<Info> clientCodes = [];
   String selectedClientCodeId;
   Info get selectedClient =>
       clientCodes.firstWhere((Info c) => c.id == selectedClientCodeId);
@@ -12,12 +13,12 @@ class TimeEntryInfo {
   set selectedClient(Info selectedClient) =>
       selectedClientCodeId = selectedClient.id;
 
-  List<Info> projectCodes;
+  List<Info> projectCodes = [];
   String selectedProjectCodeId;
   Info get selectedProject =>
       projectCodes.firstWhere((Info p) => p.id == selectedProjectCodeId);
 
-  List<Info> taskCodes;
+  List<Info> taskCodes = [];
   String selectedTaskCodeId;
   Info get selectedTaskCode =>
       taskCodes.firstWhere((Info t) => t.id == selectedTaskCodeId);
@@ -26,14 +27,15 @@ class TimeEntryInfo {
 
   String notes;
 
-  TimeEntryInfo(this.dateInfo);
+  TimeEntryInfo({@required this.id});
+
   bool get isEditable => dateInfo.isEditable;
 }
 
 class Info {
   String id;
   String code;
-  Info(this.id, this.code);
+  Info({@required this.id, @required this.code});
   @override
   String toString() => code;
 }

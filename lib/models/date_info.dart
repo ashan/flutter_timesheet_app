@@ -9,10 +9,11 @@ class DateInfo {
   DateInfo(this.date, this.timeSheetPeriod);
 
   TimeEntryInfo ammendTimeEntryInfo(TimeEntryInfo timeEntry) {
+    timeEntry.dateInfo = this;
     return timeEntryDetails[timeEntry.id] = timeEntry;
   }
 
   bool get isEditable => timeSheetPeriod.isEditable;
   @override
-  String toString() => DateFormat.MMMd().format(date);
+  String toString() => DateFormat('d E').format(date);
 }

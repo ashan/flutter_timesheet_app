@@ -8,6 +8,7 @@ class CalendarModel extends Model {
   bool _isBusy = false;
   bool _isPreviousPeriodLoading = false;
   bool _isNextPeriodLoading = false;
+  bool _needsLoginIn = false;
 
   Map<DateTime, TimeSheetPeriodInfo> _timeSheetPeriodCache = {};
   TimeSheetPeriodInfo _currentTimeSheetPeriod;
@@ -22,6 +23,7 @@ class CalendarModel extends Model {
   bool get isNextPeriodLoading =>
       _isNextPeriodLoading &&
       !_timeSheetPeriodCache.containsKey(_nextPeriodStartDate);
+  bool get needsLoginIn => _needsLoginIn;
 
   TimeSheetPeriodInfo get currentTimeSheetPeriod => _currentTimeSheetPeriod;
 
@@ -65,8 +67,16 @@ class CalendarModel extends Model {
   }
 
   /// ------------- public methods --------------------------------//
+  test() {
+    var test = "";
+  }
 
   ///----------------- event listeners -----------------------------//
+  void onExitCalendarScreen() {
+    // clear cache for now
+    _timeSheetPeriodCache = {};
+  }
+
   void onDateTap(DateTime selectedDate) {
     _currentTimeSheetPeriod.selectDay(selectedDate);
     notifyListeners();
@@ -103,51 +113,59 @@ class CalendarModel extends Model {
   }
 
   Future<bool> _jumpToPeriodStartingWith(DateTime periodStartDate) async {
-    _isBusy = true;
-    final previousPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
-        periodStartDate.subtract(Duration(days: 1)));
 
-    _isPreviousPeriodLoading =
-        !_timeSheetPeriodCache.containsKey(previousPeriodStart);
+    try {
+      _isBusy = true;
+      final previousPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
+          periodStartDate.subtract(Duration(days: 1)));
 
-    final nextPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
-        TimeSheetPeriodInfo.periodEndDateFor(periodStartDate)
-            .add(Duration(days: 1)));
+      _isPreviousPeriodLoading =
+          !_timeSheetPeriodCache.containsKey(previousPeriodStart);
 
-    _isNextPeriodLoading = !_timeSheetPeriodCache.containsKey(nextPeriodStart);
-    notifyListeners();
+      final nextPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
+          TimeSheetPeriodInfo.periodEndDateFor(periodStartDate)
+              .add(Duration(days: 1)));
 
-    if (_isPreviousPeriodLoading) {
-      TimeSheetProvider().loadTimeSheetFor(_previousPeriodStartDate).then(
-        (TimeSheetPeriodInfo tp) {
-          _timeSheetPeriodCache.putIfAbsent(_previousPeriodStartDate, () => tp);
-          _isPreviousPeriodLoading = false;
+      _isNextPeriodLoading =
+          !_timeSheetPeriodCache.containsKey(nextPeriodStart);
+      notifyListeners();
+
+      if (_isPreviousPeriodLoading) {
+        TimeSheetProvider().loadTimeSheetFor(previousPeriodStart).then(
+          (TimeSheetPeriodInfo tp) {
+            _timeSheetPeriodCache.putIfAbsent(previousPeriodStart, () => tp);
+            _isPreviousPeriodLoading = false;
+            notifyListeners();
+          },
+        );
+      }
+      if (_isNextPeriodLoading) {
+        TimeSheetProvider()
+            .loadTimeSheetFor(nextPeriodStart)
+            .then((TimeSheetPeriodInfo tp) {
+          _timeSheetPeriodCache.putIfAbsent(nextPeriodStart, () => tp);
+          _isNextPeriodLoading = false;
           notifyListeners();
-        },
-      );
-    }
-    if (_isNextPeriodLoading) {
-      TimeSheetProvider()
-          .loadTimeSheetFor(_nextPeriodStartDate)
-          .then((TimeSheetPeriodInfo tp) {
-        _timeSheetPeriodCache.putIfAbsent(_nextPeriodStartDate, () => tp);
-        _isNextPeriodLoading = false;
-        notifyListeners();
-      });
-    }
+        });
+      }
 
-    if (_timeSheetPeriodCache.containsKey(periodStartDate)) {
-      _currentTimeSheetPeriod = _timeSheetPeriodCache[periodStartDate];
-    } else {
-      _currentTimeSheetPeriod =
-          await TimeSheetProvider().loadTimeSheetFor(periodStartDate);
-      _timeSheetPeriodCache.putIfAbsent(
-          periodStartDate, () => _currentTimeSheetPeriod);
+      if (_timeSheetPeriodCache.containsKey(periodStartDate)) {
+        _currentTimeSheetPeriod = _timeSheetPeriodCache[periodStartDate];
+      } else {
+        _currentTimeSheetPeriod =
+            await TimeSheetProvider().loadTimeSheetFor(periodStartDate);
+        _timeSheetPeriodCache.putIfAbsent(
+            periodStartDate, () => _currentTimeSheetPeriod);
+      }
+      _isBusy = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isBusy = false;
+      _isNextPeriodLoading = false;
+      _isPreviousPeriodLoading = false;
+      _needsLoginIn = true;
+      notifyListeners();
     }
-    _isBusy = false;
-    notifyListeners();
-
-    // TODO: maybe cache the next period as well?
-    return true;
   }
 }

@@ -16,14 +16,12 @@ class CalendarWidget extends StatefulWidget {
 
 class _CalendarWidgetState extends State<CalendarWidget> {
   final _scrollController = ScrollController();
-  double _dateWidth = 50.0;
+  double _individualDateWidth = 40.0;
+  double _datesWidgetHeight = 70.0;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      print(_scrollController.position.extentAfter);
-    });
   }
 
   @override
@@ -61,20 +59,26 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                     icon: Icon(Icons.today),
                     onPressed: () {
                       calendar.onTodayTap();
+                      final todayKey = calendar
+                          .currentTimeSheetPeriod.periodDays.keys
+                          .firstWhere(
+                              (d) => Utils.isSameDay(d, DateTime.now()));
+
                       final todayIndex = calendar
                           .currentTimeSheetPeriod.periodDays.keys
                           .toList()
-                          .indexOf(DateTime.now());
-                      _scrollController.animateTo((todayIndex * _dateWidth),
-                          duration: Duration(seconds: 2), curve: Curves.ease);
+                          .indexOf(todayKey);
+                      print(_scrollController.position.maxScrollExtent);
+                      print(todayIndex * _individualDateWidth);
+                      _scrollController.animateTo(
+                          ((todayIndex + 4) * _individualDateWidth),
+                          duration: Duration(seconds: 2),
+                          curve: Curves.ease);
                     },
                   ),
                 ],
               ),
-              Container(
-                height: 70,
-                child: _datesWidget(calendar),
-              ),
+              _datesWidget(calendar)
             ],
           ),
         ),
@@ -86,11 +90,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   Widget _datesWidget(CalendarModel calendar) {
-    final leftPadding = calendar.isPreviousPeriodLoading ? 20.0 : 20.0;
-    final rightPaddingPadding = calendar.isNextPeriodLoading ? 20.0 : 20.0;
     var stackChildren = <Widget>[
       Padding(
-        padding: EdgeInsets.only(left: leftPadding, right: rightPaddingPadding),
+        padding: EdgeInsets.only(left: 0, right: 0),
         child: ListView.builder(
           controller: _scrollController,
           scrollDirection: Axis.horizontal,
@@ -99,8 +101,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             final currentDate =
                 calendar.currentTimeSheetPeriod.periodDays.keys.toList()[index];
             return SizedBox(
-              width: _dateWidth,
+              width: _individualDateWidth,
               child: Column(
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   _getDay(calendar, currentDate),
                   Divider(),
@@ -113,37 +116,11 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       ),
     ];
 
-    if (!calendar.isPreviousPeriodLoading) {
-      stackChildren.add(
-        Align(
-          alignment: Alignment.topLeft,
-          child: IconButton(
-            alignment: Alignment.topLeft,
-            icon: Icon(
-              Icons.keyboard_arrow_left,
-            ),
-            onPressed: calendar.onTapPreviousPeriod,
-          ),
-        ),
-      );
-    }
-    if (!calendar.isNextPeriodLoading) {
-      stackChildren.add(
-        Align(
-          alignment: Alignment.topRight,
-          child: IconButton(
-            alignment: Alignment.topRight,
-            icon: Icon(
-              Icons.keyboard_arrow_right,
-            ),
-            onPressed: calendar.onTapNextPeriod,
-          ),
-        ),
-      );
-    }
-
-    return Stack(
-      children: stackChildren,
+    return Container(
+      height: _datesWidgetHeight,
+      child: Stack(
+        children: stackChildren,
+      ),
     );
   }
 

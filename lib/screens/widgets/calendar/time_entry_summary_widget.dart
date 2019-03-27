@@ -22,7 +22,6 @@ class _TimeEntryDetailsSummaryWidgetState
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return _sliverAppBar(calendar);
           },
-
           body: ListView.builder(
             shrinkWrap: true,
             itemCount: calendar.currentTimeSheetPeriod.allTimeEntryInfo.length,
@@ -64,14 +63,18 @@ class _TimeEntryDetailsSummaryWidgetState
 
   Widget timeEntryDetailFor(CalendarModel calendar, TimeEntryInfo timeInfo) {
     var clientCode = timeInfo.selectedClient.toString();
-    if (clientCode.length > 10) {
+    if (clientCode.length > 5) {
       final clientCodeArray = clientCode.split(' ');
-      clientCode = '';
-      for (int i = 0;
-          i < (clientCodeArray.length < 5 ? clientCodeArray.length : 5);
-          i++) {
-        if (clientCodeArray[i].isNotEmpty)
-          clientCode += clientCodeArray[i].substring(0, 1);
+      if (clientCodeArray.length == 1) {
+        clientCode = clientCode.substring(0, 3);
+      } else {
+        clientCode = '';
+        for (int i = 0;
+            i < (clientCodeArray.length < 5 ? clientCodeArray.length : 5);
+            i++) {
+          if (clientCodeArray[i].isNotEmpty)
+            clientCode += clientCodeArray[i].substring(0, 1);
+        }
       }
     }
     var client = Container(

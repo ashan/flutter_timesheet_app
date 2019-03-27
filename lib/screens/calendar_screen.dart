@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:scoped_model/scoped_model.dart';
+
 import '../models/calendar.dart';
 import './widgets/calendar/calendar_widget.dart';
 import './widgets/assorted_widgets.dart';
+import '../providers/tmesheet.dart';
 
 class CalendarScreen extends StatefulWidget {
   static const String ROUTE = "CalendarScreen";
@@ -18,6 +20,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<CalendarModel>(
       builder: (BuildContext context, Widget widget, CalendarModel calendar) {
+        if (calendar.needsLoginIn) {
+          calendar.onExitCalendarScreen();
+          Navigator.pop(context);
+          return Container();
+        }
         final children = <Widget>[
           CalendarWidget(),
         ];
@@ -25,43 +32,65 @@ class _CalendarScreenState extends State<CalendarScreen> {
         if (calendar.isBusy) {
           children.add(AssortedWidgets.progressIndicator);
         }
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Calendar App'),
-            elevation: 8.0,
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: calendar.currentTimeSheetPeriod.isEditable ? FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () {},
-          ): null,
-          bottomNavigationBar: BottomAppBar(
-            elevation: 8,
-            shape: CircularNotchedRectangle(),
-            notchMargin: 4.0,
-            child: new Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.menu),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {},
-                ),
-              ],
+        return WillPopScope(
+          onWillPop: () {
+            calendar.onExitCalendarScreen();
+            return TimeSheetProvider().logOut();
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('Calendar App'),
+              elevation: 8.0,
             ),
-          ),
-          body: Stack(
-            children: children,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: calendar.currentTimeSheetPeriod.isEditable
+                ? FloatingActionButton(
+                    child: const Icon(Icons.add),
+                    onPressed: () => calendar.test(),
+                  )
+                : null,
+            bottomNavigationBar: BottomAppBar(
+              elevation: 8,
+              shape: CircularNotchedRectangle(),
+              notchMargin: 4.0,
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        
+                children: <Widget>[
+                  _navigatePeriodButton(calendar),
+                  _navigatePeriodButton(calendar, isNextPeriod: true),
+                ],
+              ),
+            ),
+            body: Stack(
+              children: children,
+            ),
           ),
         );
       },
     );
   }
 
+  Widget _navigatePeriodButton(CalendarModel calendar,
+      {bool isNextPeriod = false}) {
+    if (calendar.isNextPeriodLoading || calendar.isNextPeriodLoading)
+      return Container();
 
+    List<Widget> children = isNextPeriod
+        ? [Text('Next Period'), Icon(Icons.keyboard_arrow_right)]
+        : [Icon(Icons.keyboard_arrow_left), Text('Previous Period')];
+    return SizedBox(
+      height: 50,
+      child: InkWell(
+        onTap: isNextPeriod
+            ? calendar.onTapNextPeriod
+            : calendar.onTapPreviousPeriod,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: children,
+        ),
+      ),
+    );
+  }
 }
