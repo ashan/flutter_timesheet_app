@@ -120,20 +120,34 @@ class _TimeEntryDetailsSummaryWidgetState
       onPressed: () {},
     );
 
-    return Card(
-      elevation: 8,
-      margin: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-      child: InkWell(
-        onTap: () => Navigator.of(context).push(
-              TimeEntryOverlay(calendar, timeInfo),
+    final cardBorderColor = calendar.currentTimeSheetPeriod.isEditable
+        ? Colors.green
+        : Theme.of(context).disabledColor;
+    return Padding(
+      padding: EdgeInsets.only(left: 2, right: 2),
+      child: Card(
+        elevation: 8,
+        margin: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+        child: Container(
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              bottom: BorderSide(color: cardBorderColor, width: 8.0),
             ),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          title: project,
-          leading: client,
-          subtitle: taskPlusTime,
-          trailing: moreInfo,
-          enabled: timeInfo.isEditable,
+          ),
+          child: InkWell(
+            onTap: () => Navigator.of(context).push(
+                  TimeEntryOverlay(calendar, timeInfo),
+                ),
+            child: ListTile(
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              title: project,
+              leading: client,
+              subtitle: taskPlusTime,
+              trailing: moreInfo,
+              enabled: timeInfo.isEditable,
+            ),
+          ),
         ),
       ),
     );

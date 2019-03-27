@@ -78,7 +78,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                   ),
                 ],
               ),
-              _datesWidget(calendar)
+              _datesWidget(calendar),
             ],
           ),
         ),
@@ -102,8 +102,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 calendar.currentTimeSheetPeriod.periodDays.keys.toList()[index];
             return SizedBox(
               width: _individualDateWidth,
+              height: _datesWidgetHeight,
               child: Column(
-                mainAxisSize: MainAxisSize.max,
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   _getDay(calendar, currentDate),
                   Divider(),
@@ -135,8 +136,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   Widget _getDate(CalendarModel calendar, DateTime currentDate) {
+    final isSelectedDate =
+        calendar.currentTimeSheetPeriod.isSelectedDate(currentDate);
     final decoration = BoxDecoration(
-      border: calendar.currentTimeSheetPeriod.isSelectedDate(currentDate)
+      border: isSelectedDate
           ? Border(
               bottom: BorderSide(
                 width: 3.0,
@@ -168,26 +171,32 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       );
     }
     children.add(
-      Container(
-        alignment: Alignment.center,
-        decoration: decoration,
-        padding: EdgeInsets.all(10.0),
-        child: InkWell(
-          onTap: () => calendar.onDateTap(currentDate),
-          child: Text(
-            DateFormat.d().format(currentDate),
-            textAlign: TextAlign.center,
-            textScaleFactor: 0.8,
-            style: Theme.of(context).textTheme.body2.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+      InkWell(
+        onTap: () => calendar.onDateTap(currentDate),
+        child: Container(
+          decoration: decoration,
+          padding: EdgeInsets.all(10),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: Text(
+              DateFormat.d().format(currentDate),
+              textAlign: TextAlign.center,
+              textScaleFactor: 0.8,
+              style: Theme.of(context).textTheme.body2.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
           ),
         ),
       ),
     );
 
-    return Stack(
-      children: children,
+    return Material(
+      elevation: isSelectedDate ? 2 : 8,
+      color: isSelectedDate ? Colors.transparent : null,
+      child: Stack(
+        children: children,
+      ),
     );
   }
 }

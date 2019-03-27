@@ -52,10 +52,11 @@ class TimeSheetPeriodInfo {
     throw TimeSheetPeriodException('$date is not within period');
   }
 
-  DateInfo selectDay(DateTime date, {bool clearSelectedDaysFirst: true}) {
-    if (clearSelectedDaysFirst) {
-      clearSelectedDays();
-    }
+  void unSelectDay(DateTime date) {
+    _selectedDays.remove(date);
+  }
+
+  DateInfo selectDay(DateTime date) {
     final dateInfo = _periodDays[date];
     if (dateInfo != null) {
       _allTimeEntryInfo.addAll(dateInfo.timeEntryDetails.values);
@@ -64,12 +65,12 @@ class TimeSheetPeriodInfo {
     throw TimeSheetPeriodException('$date is not in _periodDays');
   }
 
-  Map<DateTime, DateInfo> selectAllDays({bool clearSelectedDaysFirst: true}) {
-    if (clearSelectedDaysFirst) clearSelectedDays();
-    _periodDays.keys
-        .forEach((DateTime d) => selectDay(d, clearSelectedDaysFirst: false));
-    return _selectedDays;
-  }
+  // Map<DateTime, DateInfo> selectAllDays({bool clearSelectedDaysFirst: true}) {
+  //   if (clearSelectedDaysFirst) clearSelectedDays();
+  //   _periodDays.keys
+  //       .forEach((DateTime d) => selectDay(d, clearSelectedDaysFirst: false));
+  //   return _selectedDays;
+  // }
 
   void clearSelectedDays() {
     _selectedDays = {};

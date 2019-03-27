@@ -78,17 +78,21 @@ class CalendarModel extends Model {
   }
 
   void onDateTap(DateTime selectedDate) {
-    _currentTimeSheetPeriod.selectDay(selectedDate);
+    if (_currentTimeSheetPeriod.isSelectedDate(selectedDate)) {
+      _currentTimeSheetPeriod.unSelectDay(selectedDate);
+    } else {
+      _currentTimeSheetPeriod.selectDay(selectedDate);
+    }
     notifyListeners();
   }
 
-  void onSelectAllTap(bool allSelected) {
-    if (allSelected)
-      _currentTimeSheetPeriod.selectAllDays();
-    else
-      _currentTimeSheetPeriod.clearSelectedDays();
-    notifyListeners();
-  }
+  // void onSelectAllTap(bool allSelected) {
+  //   if (allSelected)
+  //     _currentTimeSheetPeriod.selectAllDays();
+  //   else
+  //     _currentTimeSheetPeriod.clearSelectedDays();
+  //   notifyListeners();
+  // }
 
   void onTapNextPeriod() => _jumpToPeriodStartingWith(_nextPeriodStartDate);
 
@@ -113,7 +117,8 @@ class CalendarModel extends Model {
   }
 
   Future<bool> _jumpToPeriodStartingWith(DateTime periodStartDate) async {
-
+    // clear out any selected dates from the current time period
+    _currentTimeSheetPeriod.clearSelectedDays();
     try {
       _isBusy = true;
       final previousPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(

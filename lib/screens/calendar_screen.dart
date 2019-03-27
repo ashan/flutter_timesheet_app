@@ -56,7 +56,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
               notchMargin: 4.0,
               child: new Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        
                 children: <Widget>[
                   _navigatePeriodButton(calendar),
                   _navigatePeriodButton(calendar, isNextPeriod: true),
@@ -75,7 +74,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _navigatePeriodButton(CalendarModel calendar,
       {bool isNextPeriod = false}) {
     if (calendar.isNextPeriodLoading || calendar.isNextPeriodLoading)
-      return Container();
+      return SizedBox(
+        height: 50,
+      );
 
     List<Widget> children = isNextPeriod
         ? [Text('Next Period'), Icon(Icons.keyboard_arrow_right)]
