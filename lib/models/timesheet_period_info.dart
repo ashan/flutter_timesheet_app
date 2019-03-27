@@ -65,16 +65,18 @@ class TimeSheetPeriodInfo {
     throw TimeSheetPeriodException('$date is not in _periodDays');
   }
 
-  // Map<DateTime, DateInfo> selectAllDays({bool clearSelectedDaysFirst: true}) {
-  //   if (clearSelectedDaysFirst) clearSelectedDays();
-  //   _periodDays.keys
-  //       .forEach((DateTime d) => selectDay(d, clearSelectedDaysFirst: false));
-  //   return _selectedDays;
-  // }
-
   void clearSelectedDays() {
     _selectedDays = {};
     _allTimeEntryInfo = [];
+  }
+
+  void selectAllWorkingDays() {
+    for (DateTime day in _periodDays.keys.toList()) {
+      // TODO add holiday logic
+      if (![DateTime.saturday, DateTime.sunday].contains(day.weekday)) {
+        selectDay(day);
+      }
+    }
   }
 
   bool isSelectedDate(DateTime date) => _selectedDays.containsKey(date);

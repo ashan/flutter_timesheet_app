@@ -57,8 +57,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: new Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  _navigatePeriodButton(calendar),
-                  _navigatePeriodButton(calendar, isNextPeriod: true),
+                  // _navigatePeriodButton(calendar),
+                  // _navigatePeriodButton(calendar, isNextPeriod: true),
                 ],
               ),
             ),

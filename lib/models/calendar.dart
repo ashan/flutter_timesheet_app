@@ -9,6 +9,7 @@ class CalendarModel extends Model {
   bool _isPreviousPeriodLoading = false;
   bool _isNextPeriodLoading = false;
   bool _needsLoginIn = false;
+  bool _isAllWorkingDaysSelected = false;
 
   Map<DateTime, TimeSheetPeriodInfo> _timeSheetPeriodCache = {};
   TimeSheetPeriodInfo _currentTimeSheetPeriod;
@@ -24,6 +25,7 @@ class CalendarModel extends Model {
       _isNextPeriodLoading &&
       !_timeSheetPeriodCache.containsKey(_nextPeriodStartDate);
   bool get needsLoginIn => _needsLoginIn;
+  bool get isAllWorkingDaysSelected => _isAllWorkingDaysSelected;
 
   TimeSheetPeriodInfo get currentTimeSheetPeriod => _currentTimeSheetPeriod;
 
@@ -86,13 +88,14 @@ class CalendarModel extends Model {
     notifyListeners();
   }
 
-  // void onSelectAllTap(bool allSelected) {
-  //   if (allSelected)
-  //     _currentTimeSheetPeriod.selectAllDays();
-  //   else
-  //     _currentTimeSheetPeriod.clearSelectedDays();
-  //   notifyListeners();
-  // }
+  void onAllWorkinngDaysTap() {
+    _isAllWorkingDaysSelected = !_isAllWorkingDaysSelected;
+    if (_isAllWorkingDaysSelected)
+      _currentTimeSheetPeriod.selectAllWorkingDays();
+    else
+      _currentTimeSheetPeriod.clearSelectedDays();
+    notifyListeners();
+  }
 
   void onTapNextPeriod() => _jumpToPeriodStartingWith(_nextPeriodStartDate);
 

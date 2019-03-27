@@ -43,7 +43,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     return Column(
       children: <Widget>[
         Card(
-          elevation: 8.0,
+          elevation: 0.0,
           margin: EdgeInsets.all(0.0),
           child: Column(
             children: <Widget>[
@@ -55,30 +55,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                       subtitle: Text(calendar.subHeadingDisplayStr),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.today),
-                    onPressed: () {
-                      calendar.onTodayTap();
-                      final todayKey = calendar
-                          .currentTimeSheetPeriod.periodDays.keys
-                          .firstWhere(
-                              (d) => Utils.isSameDay(d, DateTime.now()));
-
-                      final todayIndex = calendar
-                          .currentTimeSheetPeriod.periodDays.keys
-                          .toList()
-                          .indexOf(todayKey);
-                      print(_scrollController.position.maxScrollExtent);
-                      print(todayIndex * _individualDateWidth);
-                      _scrollController.animateTo(
-                          ((todayIndex + 4) * _individualDateWidth),
-                          duration: Duration(seconds: 2),
-                          curve: Curves.ease);
-                    },
-                  ),
                 ],
               ),
               _datesWidget(calendar),
+              _calendarNaivigationWidgets(calendar),
             ],
           ),
         ),
@@ -117,10 +97,16 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       ),
     ];
 
-    return Container(
-      height: _datesWidgetHeight,
-      child: Stack(
-        children: stackChildren,
+    return Card(
+      elevation: 8,
+      child: Padding(
+        padding: EdgeInsets.only(top: 10),
+        child: Container(
+          height: _datesWidgetHeight,
+          child: Stack(
+            children: stackChildren,
+          ),
+        ),
       ),
     );
   }
@@ -177,7 +163,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           decoration: decoration,
           padding: EdgeInsets.all(10),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
+            padding: EdgeInsets.symmetric(horizontal: 3),
             child: Text(
               DateFormat.d().format(currentDate),
               textAlign: TextAlign.center,
@@ -196,6 +182,122 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       color: isSelectedDate ? Colors.transparent : null,
       child: Stack(
         children: children,
+      ),
+    );
+  }
+
+  Widget _calendarNaivigationWidgets(CalendarModel calendar) {
+    return Padding(
+      padding: EdgeInsets.only(top: 5, bottom: 5),
+      child: Card(
+        elevation: 8,
+        child: Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    _jumpToTodayButton(calendar),
+                    _selectAllWorkingDays(calendar),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    _navigatePeriodButton(calendar),
+                    SizedBox(width: 10),
+                    _navigatePeriodButton(calendar, isNextPeriod: true),
+                  ],
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _navigatePeriodButton(CalendarModel calendar,
+      {bool isNextPeriod = false}) {
+    if (calendar.isNextPeriodLoading || calendar.isNextPeriodLoading) {
+      return SizedBox(
+        height: 0,
+      );
+    }
+    Icon icon = Icon(
+      isNextPeriod ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_left,
+      size: 30,
+    );
+    Function onTap =
+        isNextPeriod ? calendar.onTapNextPeriod : calendar.onTapPreviousPeriod;
+    Text text = Text(isNextPeriod ? 'next' : 'prev');
+
+    final children = isNextPeriod ? [text, icon] : [icon, text];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      alignment: Alignment.center,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: Theme.of(context).primaryColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        ),
+      ),
+    );
+  }
+
+  Widget _jumpToTodayButton(CalendarModel calendar) {
+    final children = <Widget>[
+      Icon(Icons.today),
+      SizedBox(
+        width: 2,
+      ),
+      Text('today')
+    ];
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      alignment: Alignment.center,
+      child: InkWell(
+        onTap: () {
+          calendar.onTodayTap();
+          final todayKey = calendar.currentTimeSheetPeriod.periodDays.keys
+              .firstWhere((d) => Utils.isSameDay(d, DateTime.now()));
+
+          final todayIndex = calendar.currentTimeSheetPeriod.periodDays.keys
+              .toList()
+              .indexOf(todayKey);
+          _scrollController.animateTo(((todayIndex + 4) * _individualDateWidth),
+              duration: Duration(seconds: 2), curve: Curves.ease);
+        },
+        splashColor: Theme.of(context).primaryColorDark,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        ),
+      ),
+    );
+  }
+
+  Widget _selectAllWorkingDays(CalendarModel calendar) {
+    final children = <Widget>[
+      Icon(Icons.select_all,
+          color: calendar.isAllWorkingDaysSelected ? Colors.green : null),
+      SizedBox(
+        width: 2,
+      ),
+      Text('all working days')
+    ];
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      alignment: Alignment.center,
+      child: InkWell(
+        onTap: calendar.onAllWorkinngDaysTap,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
+        ),
       ),
     );
   }
