@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../models/calendar.dart';
+import './time_entry_overlay.dart';
 import './widgets/calendar/calendar_widget.dart';
 import './widgets/assorted_widgets.dart';
 import '../providers/tmesheet.dart';
@@ -21,7 +22,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return ScopedModelDescendant<CalendarModel>(
       builder: (BuildContext context, Widget widget, CalendarModel calendar) {
         if (calendar.needsLoginIn) {
-          calendar.onExitCalendarScreen();
+          calendar.onTapLogout();
           Navigator.pop(context);
           return Container();
         }
@@ -33,10 +34,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children.add(AssortedWidgets.progressIndicator);
         }
         return WillPopScope(
-          onWillPop: () {
-            calendar.onExitCalendarScreen();
-            return TimeSheetProvider().logOut();
-          },
+          onWillPop: calendar.onTapLogout,
           child: Scaffold(
             appBar: AppBar(
               title: Text('Calendar App'),
@@ -47,7 +45,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             floatingActionButton: calendar.currentTimeSheetPeriod.isEditable
                 ? FloatingActionButton(
                     child: const Icon(Icons.add),
-                    onPressed: () => calendar.test(),
+                    onPressed: () => Navigator.of(context).push(
+                          TimeEntryOverlay(calendar),
+                        ),
                   )
                 : null,
             bottomNavigationBar: BottomAppBar(

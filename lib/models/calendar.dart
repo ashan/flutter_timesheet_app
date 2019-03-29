@@ -3,6 +3,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 import '../providers/tmesheet.dart';
 import './timesheet_period_info.dart';
+import './time_entry_info.dart';
 
 class CalendarModel extends Model {
   bool _isBusy = false;
@@ -28,6 +29,28 @@ class CalendarModel extends Model {
   bool get isAllWorkingDaysSelected => _isAllWorkingDaysSelected;
 
   TimeSheetPeriodInfo get currentTimeSheetPeriod => _currentTimeSheetPeriod;
+
+  List<Info> getAllPossibleClientCodes() =>
+      _currentTimeSheetPeriod.possibleClientProjectTaskCombinations
+          .where((p) => p.projects.isNotEmpty)
+          .toList();
+
+  List<Info> getAllPossibleProjectCodes(String clientId) =>
+      (clientId == null || clientId.isEmpty)
+          ? <Info>[]
+          : _currentTimeSheetPeriod.possibleClientProjectTaskCombinations
+              .firstWhere((c) => c.id == clientId)
+              .projects
+              .toList();
+
+  List<Info> getAllPossibleTaskCodes(String clientId, String projectId) {
+    if ((clientId == null || clientId.isEmpty) ||
+        (projectId == null || projectId.isEmpty)) return <Info>[];
+    var projects = _currentTimeSheetPeriod.possibleClientProjectTaskCombinations
+        .firstWhere((c) => c.id == clientId)
+        .projects;
+    return projects.firstWhere((p) => p.id == projectId).tasks;
+  }
 
   String get selectedDateStr {
     var orderedSelectedDates = _currentTimeSheetPeriod.selectedDates.keys
@@ -64,19 +87,26 @@ class CalendarModel extends Model {
   init({DateTime initDate}) async {
     initDate = initDate ?? DateTime.now();
     final periodStartDate = TimeSheetPeriodInfo.periodStartDateFor(initDate);
+    _timeSheetPeriodCache = {};
 
     await _jumpToPeriodStartingWith(periodStartDate);
   }
 
   /// ------------- public methods --------------------------------//
-  test() {
-    var test = "";
+  TimeEntryInfo timeEntryPlaceHolder() {
+    // TimeE
   }
 
   ///----------------- event listeners -----------------------------//
-  void onExitCalendarScreen() {
-    // clear cache for now
+  Future<bool> onTapLogout() async {
+    _isBusy = true;
     _timeSheetPeriodCache = {};
+    notifyListeners();
+
+    var val = await TimeSheetProvider().logOut();
+    _isBusy = false;
+    notifyListeners();
+    return val;
   }
 
   void onDateTap(DateTime selectedDate) {
@@ -175,5 +205,6 @@ class CalendarModel extends Model {
       _needsLoginIn = true;
       notifyListeners();
     }
+    return false;
   }
 }

@@ -224,16 +224,26 @@ class _LoginScreenState extends State<LoginScreen> {
           .logIn(_emailController.text, _passwordController.text)
           .then(
         (bool success) {
-          setState(() => _logOnInProgress = false);
-
           if (success) {
             calendar.init();
             Navigator.of(context).pushNamed(CalendarScreen.ROUTE);
           } else {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text('Login error, please retry! '),
-            ));
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(
+                content: Text('Login error, please retry! '),
+              ),
+            );
           }
+          setState(() => _logOnInProgress = false);
+        },
+        onError: (error) {
+          // error occoured, let the user know and ask to log in again
+
+          setState(() => _logOnInProgress = false);
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text('Login error, please retry! '),
+          ));
+          return false;
         },
       );
     }

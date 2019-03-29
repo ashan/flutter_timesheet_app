@@ -105,7 +105,7 @@ class _TimeEntryDetailsSummaryWidgetState
 
     var taskPlusTime = Row(
       children: <Widget>[
-        Expanded(child: Text(timeInfo.selectedTaskCode.toString())),
+        Expanded(child: Text(timeInfo.selectedTask.toString())),
         Container(
           padding: EdgeInsets.only(left: 5),
           child: Text(timeInfo.hours.toString()),
@@ -136,7 +136,7 @@ class _TimeEntryDetailsSummaryWidgetState
           ),
           child: InkWell(
             onTap: () => Navigator.of(context).push(
-                  TimeEntryOverlay(calendar, timeInfo),
+                  TimeEntryOverlay(calendar, timeEntryInfo: timeInfo),
                 ),
             child: ListTile(
               contentPadding:

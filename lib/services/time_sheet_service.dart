@@ -98,7 +98,7 @@ class TimeSheetService {
     if (response.statusCode != 302) {
       var test = "";
     }
-    _cookies = null;
+    _cookies = {};
     return Future.value(true);
   }
 
@@ -166,7 +166,7 @@ class TimeSheetService {
           "Cookie": _cookies.values.join(),
         });
 
-  String get _accountEmployeeID => _cookies != null
+  String get _accountEmployeeID => _cookies != null && _cookies.isNotEmpty
       ? _cookies['AccountEmployeeId'].split('=')[1].replaceAll(';', '').trim()
       : null;
 

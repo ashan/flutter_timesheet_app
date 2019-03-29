@@ -17,7 +17,9 @@ class CalendarWidget extends StatefulWidget {
 class _CalendarWidgetState extends State<CalendarWidget> {
   final _scrollController = ScrollController();
   double _individualDateWidth = 40.0;
-  double _datesWidgetHeight = 70.0;
+  double _datesWidgetHeight = 75.0;
+  double _dateTextScaleFactor = 0.9;
+  double _dayTextScaleFactor = 0.9;
 
   @override
   void initState() {
@@ -74,17 +76,17 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       Padding(
         padding: EdgeInsets.only(left: 0, right: 0),
         child: ListView.builder(
+          shrinkWrap: true,
           controller: _scrollController,
           scrollDirection: Axis.horizontal,
-          itemCount: calendar.currentTimeSheetPeriod.periodDays.length,
+          itemCount: calendar.currentTimeSheetPeriod.allDaysInPeriod.length,
           itemBuilder: (context, index) {
             final currentDate =
-                calendar.currentTimeSheetPeriod.periodDays.keys.toList()[index];
+                calendar.currentTimeSheetPeriod.allDaysInPeriod.keys.toList()[index];
             return SizedBox(
               width: _individualDateWidth,
               height: _datesWidgetHeight,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   _getDay(calendar, currentDate),
                   Divider(),
@@ -98,32 +100,51 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     ];
 
     return Card(
-      elevation: 8,
-      child: Padding(
-        padding: EdgeInsets.only(top: 10),
-        child: Container(
-          height: _datesWidgetHeight,
-          child: Stack(
-            children: stackChildren,
-          ),
-        ),
-      ),
-    );
+        elevation: 0,
+        child: Row(
+          children: <Widget>[
+            // Material(
+            //   elevation: 3,
+            //   child:Container(
+            //   width: _individualDateWidth,
+            //   height: _datesWidgetHeight,
+            //   child: IconButton(
+            //     padding: EdgeInsets.only(right: 10),
+            //     icon: Icon(Icons.keyboard_arrow_left),
+            //   ),),
+            // ),
+            Expanded(
+              child: Container(
+                height: _datesWidgetHeight,
+                child: Stack(
+                  children: stackChildren,
+                ),
+              ),
+            ),
+            // Container(
+            //   width: 30,
+            //   child: IconButton(
+            //     icon: Icon(Icons.keyboard_arrow_right),
+            //   ),
+            // ),
+          ],
+        ));
   }
 
   Widget _getDay(CalendarModel calendar, DateTime date) {
     return Text(
       DateFormat.E().format(date),
-      textScaleFactor: 0.8,
+      textScaleFactor: _dayTextScaleFactor,
       style: Theme.of(context).textTheme.body1.copyWith(
             fontWeight: FontWeight.bold,
           ),
     );
   }
 
-  Widget _getDate(CalendarModel calendar, DateTime currentDate) {
-    final isSelectedDate =
-        calendar.currentTimeSheetPeriod.isSelectedDate(currentDate);
+  Widget _getDate(CalendarModel calendar, DateTime date) {
+    final isSelectedDate = calendar.currentTimeSheetPeriod.isSelectedDate(date);
+
+    // if selected date use this bottom border
     final decoration = BoxDecoration(
       border: isSelectedDate
           ? Border(
@@ -132,42 +153,40 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 color: Colors.red.shade500,
               ),
             )
-          : Border(),
+          : Border.all(width: 0),
     );
 
     final children = <Widget>[];
 
-    if (Utils.isSameDay(DateTime.now(), currentDate)) {
+    // if it's today draw a circle
+    if (Utils.isSameDay(DateTime.now(), date))
       children.add(
-        Container(
-          alignment: Alignment.center,
-          padding: EdgeInsets.all(15.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).accentColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey[500],
-                offset: Offset(0.0, 2.5),
-                blurRadius: 5.5,
-              ),
-            ],
+        Positioned(
+          right: 1,
+          top: 1,
+          child: Container(
+            height: 10,
+            width: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).accentColor,
+            ),
           ),
         ),
       );
-    }
+
     children.add(
       InkWell(
-        onTap: () => calendar.onDateTap(currentDate),
+        onTap: () => calendar.onDateTap(date),
         child: Container(
           decoration: decoration,
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 3),
+            padding: EdgeInsets.symmetric(horizontal: 0),
             child: Text(
-              DateFormat.d().format(currentDate),
+              DateFormat.d().format(date),
               textAlign: TextAlign.center,
-              textScaleFactor: 0.8,
+              textScaleFactor: _dateTextScaleFactor,
               style: Theme.of(context).textTheme.body2.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
@@ -178,7 +197,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     );
 
     return Material(
-      elevation: isSelectedDate ? 2 : 8,
+      elevation: isSelectedDate ? 0 : 3,
       color: isSelectedDate ? Colors.transparent : null,
       child: Stack(
         children: children,
@@ -187,8 +206,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   Widget _calendarNaivigationWidgets(CalendarModel calendar) {
-    return Padding(
-      padding: EdgeInsets.only(top: 5, bottom: 5),
+    return Container(
+      padding: EdgeInsets.only(top: 0, bottom: 5),
+      margin: EdgeInsets.all(0),
       child: Card(
         elevation: 8,
         child: Column(
@@ -262,10 +282,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       child: InkWell(
         onTap: () {
           calendar.onTodayTap();
-          final todayKey = calendar.currentTimeSheetPeriod.periodDays.keys
+          final todayKey = calendar.currentTimeSheetPeriod.allDaysInPeriod.keys
               .firstWhere((d) => Utils.isSameDay(d, DateTime.now()));
 
-          final todayIndex = calendar.currentTimeSheetPeriod.periodDays.keys
+          final todayIndex = calendar.currentTimeSheetPeriod.allDaysInPeriod.keys
               .toList()
               .indexOf(todayKey);
           _scrollController.animateTo(((todayIndex + 4) * _individualDateWidth),

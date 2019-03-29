@@ -42,7 +42,6 @@ class TimeSheetProvider {
   /// Log out of the Timesheet service
   ///
   Future<bool> logOut() async {
-    // clean up cache
     return await _service.logout();
   }
 

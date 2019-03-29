@@ -24,10 +24,11 @@ class TimeEntryOverlay extends ModalRoute<void> {
   @override
   bool get maintainState => true;
 
-
   CalendarModel _calendar;
-  TimeEntryInfo _timeEntryInfo;
-  TimeEntryOverlay(this._calendar, this._timeEntryInfo);
+  TimeEntryInfo timeEntryInfo;
+  TimeEntryOverlay(this._calendar, {this.timeEntryInfo}) {
+    if (timeEntryInfo == null) timeEntryInfo = TimeEntryInfo(id: 'dummy');
+  }
 
   @override
   Widget buildPage(
@@ -42,16 +43,16 @@ class TimeEntryOverlay extends ModalRoute<void> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-        child: _buildOverlayContent(context),
-      ),),
+          child: _buildOverlayContent(context),
+        ),
+      ),
     );
   }
 
   Widget _buildOverlayContent(BuildContext context) {
-    return  TimeEntryDetailsWidget(_calendar, _timeEntryInfo);
+    return TimeEntryDetailsWidget(_calendar, timeEntryInfo);
   }
 
-  
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation, Widget child) {
@@ -65,5 +66,3 @@ class TimeEntryOverlay extends ModalRoute<void> {
     );
   }
 }
-
-

@@ -25,7 +25,7 @@ class TimeSheetPeriodInfo {
   ///
   ///getters
   ///
-  Map<DateTime, DateInfo> get periodDays => _periodDays;
+  Map<DateTime, DateInfo> get allDaysInPeriod => _periodDays;
   Map<DateTime, DateInfo> get selectedDates => _selectedDays;
   List<TimeEntryInfo> get allTimeEntryInfo => _allTimeEntryInfo;
   bool get isEditable => status == TimeSheetPeriodInfo.OPEN;
@@ -53,6 +53,8 @@ class TimeSheetPeriodInfo {
   }
 
   void unSelectDay(DateTime date) {
+    _allTimeEntryInfo
+        .removeWhere((te) => te.dateInfo.date.compareTo(date) == 0);
     _selectedDays.remove(date);
   }
 
