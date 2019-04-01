@@ -115,9 +115,9 @@ class _TimeEntryDetailsSummaryWidgetState
         ),
       ],
     );
-    var moreInfo = IconButton(
-      icon: Icon(Icons.keyboard_arrow_right),
-      onPressed: () {},
+    var moreInfo = Icon(
+      Icons.keyboard_arrow_right,
+      size: 30,
     );
 
     final cardBorderColor = calendar.currentTimeSheetPeriod.isEditable
