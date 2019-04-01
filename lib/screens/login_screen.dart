@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         onError: (error) {
           // error occoured, let the user know and ask to log in again
-
+          print(error);
           setState(() => _logOnInProgress = false);
           _scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text('Login error, please retry! '),

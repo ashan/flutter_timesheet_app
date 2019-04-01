@@ -26,9 +26,7 @@ class TimeEntryOverlay extends ModalRoute<void> {
 
   CalendarModel _calendar;
   TimeEntryInfo timeEntryInfo;
-  TimeEntryOverlay(this._calendar, {this.timeEntryInfo}) {
-    if (timeEntryInfo == null) timeEntryInfo = TimeEntryInfo(id: 'dummy');
-  }
+  TimeEntryOverlay(this._calendar, {this.timeEntryInfo});
 
   @override
   Widget buildPage(
@@ -36,21 +34,11 @@ class TimeEntryOverlay extends ModalRoute<void> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    // This makes sure that text and other content follows the material style
     return Material(
       type: MaterialType.transparency,
       // make sure that the overlay content is not cut off
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: _buildOverlayContent(context),
-        ),
-      ),
+      child: TimeEntryDetailsWidget(_calendar, timeEntryInfo),
     );
-  }
-
-  Widget _buildOverlayContent(BuildContext context) {
-    return TimeEntryDetailsWidget(_calendar, timeEntryInfo);
   }
 
   @override

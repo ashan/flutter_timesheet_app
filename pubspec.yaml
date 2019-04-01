@@ -27,6 +27,7 @@ dependencies:
   scoped_model:
   http:
   html:
+  uuid:
 
 dev_dependencies:
   flutter_test:

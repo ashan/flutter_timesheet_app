@@ -151,7 +151,7 @@ class TimeSheetProvider {
             while (currentDate.compareTo(timeSheetPeriod.periodEnd) <= 0) {
               // create the date entry
               final currentDateInfo =
-                  timeSheetPeriod.ammendDateInfo(currentDate);
+                  timeSheetPeriod.createOrGetDateInfo(currentDate);
 
               final timeInputId = 'input#${rowId}_TT$i';
               final timeElement = doc.querySelector(timeInputId);
@@ -249,7 +249,7 @@ class TimeSheetProvider {
         periodStart: periodStartDate, periodEnd: allDays.last);
 
     for (DateTime d in allDays) {
-      final dateInfo = retVal.ammendDateInfo(d);
+      final dateInfo = retVal.createOrGetDateInfo(d);
       dateInfo.ammendTimeEntryInfo(
         TimeEntryInfo(id: 'abc')
           ..clientCodes = <Info>[

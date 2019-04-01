@@ -46,7 +46,11 @@ class TimeSheetPeriodInfo {
     return total;
   }
 
-  DateInfo ammendDateInfo(DateTime date) {
+  ///
+  /// returns the existing date info object from period days if a date info object exists
+  /// else creates a new date info object, inserts it in to the period days and returns it
+  ///
+  DateInfo createOrGetDateInfo(DateTime date) {
     if (isDateWithinPeriod(date))
       return _periodDays.putIfAbsent(date, () => DateInfo(date, this));
     throw TimeSheetPeriodException('$date is not within period');
@@ -128,7 +132,7 @@ class TimeSheetPeriodInfo {
   _initPeriodDays() {
     DateTime d = periodStart;
     while (d.compareTo(periodEnd) <= 0) {
-      ammendDateInfo(d);
+      createOrGetDateInfo(d);
       d = d.add(Duration(days: 1));
     }
   }

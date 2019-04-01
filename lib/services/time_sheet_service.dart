@@ -8,7 +8,7 @@ import 'package:html/dom.dart';
 import 'package:intl/intl.dart';
 
 class TimeSheetService {
-  String _mainURL = "https://timesheet.tenzing.co.nz/TimeLive";
+  String _mainURL = "https://timesheet.tenzing.co.nz/timelive";
   final Map<String, String> _standardHeaders = {
     "Accept":
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",

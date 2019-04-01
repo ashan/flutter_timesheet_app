@@ -81,8 +81,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           scrollDirection: Axis.horizontal,
           itemCount: calendar.currentTimeSheetPeriod.allDaysInPeriod.length,
           itemBuilder: (context, index) {
-            final currentDate =
-                calendar.currentTimeSheetPeriod.allDaysInPeriod.keys.toList()[index];
+            final currentDate = calendar
+                .currentTimeSheetPeriod.allDaysInPeriod.keys
+                .toList()[index];
             return SizedBox(
               width: _individualDateWidth,
               height: _datesWidgetHeight,
@@ -285,10 +286,13 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           final todayKey = calendar.currentTimeSheetPeriod.allDaysInPeriod.keys
               .firstWhere((d) => Utils.isSameDay(d, DateTime.now()));
 
-          final todayIndex = calendar.currentTimeSheetPeriod.allDaysInPeriod.keys
+          final todayIndex = calendar
+              .currentTimeSheetPeriod.allDaysInPeriod.keys
               .toList()
               .indexOf(todayKey);
-          _scrollController.animateTo(((todayIndex + 4) * _individualDateWidth),
+
+          final ideal = todayIndex * _individualDateWidth;
+          _scrollController.animateTo(ideal,
               duration: Duration(seconds: 2), curve: Curves.ease);
         },
         splashColor: Theme.of(context).primaryColorDark,

@@ -154,38 +154,38 @@ class CalendarModel extends Model {
     _currentTimeSheetPeriod.clearSelectedDays();
     try {
       _isBusy = true;
-      final previousPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
-          periodStartDate.subtract(Duration(days: 1)));
+      // final previousPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
+      //     periodStartDate.subtract(Duration(days: 1)));
 
-      _isPreviousPeriodLoading =
-          !_timeSheetPeriodCache.containsKey(previousPeriodStart);
+      // _isPreviousPeriodLoading =
+      //     !_timeSheetPeriodCache.containsKey(previousPeriodStart);
 
-      final nextPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
-          TimeSheetPeriodInfo.periodEndDateFor(periodStartDate)
-              .add(Duration(days: 1)));
+      // final nextPeriodStart = TimeSheetPeriodInfo.periodStartDateFor(
+      //     TimeSheetPeriodInfo.periodEndDateFor(periodStartDate)
+      //         .add(Duration(days: 1)));
 
-      _isNextPeriodLoading =
-          !_timeSheetPeriodCache.containsKey(nextPeriodStart);
+      // _isNextPeriodLoading =
+      //     !_timeSheetPeriodCache.containsKey(nextPeriodStart);
       notifyListeners();
 
-      if (_isPreviousPeriodLoading) {
-        TimeSheetProvider().loadTimeSheetFor(previousPeriodStart).then(
-          (TimeSheetPeriodInfo tp) {
-            _timeSheetPeriodCache.putIfAbsent(previousPeriodStart, () => tp);
-            _isPreviousPeriodLoading = false;
-            notifyListeners();
-          },
-        );
-      }
-      if (_isNextPeriodLoading) {
-        TimeSheetProvider()
-            .loadTimeSheetFor(nextPeriodStart)
-            .then((TimeSheetPeriodInfo tp) {
-          _timeSheetPeriodCache.putIfAbsent(nextPeriodStart, () => tp);
-          _isNextPeriodLoading = false;
-          notifyListeners();
-        });
-      }
+      // if (_isPreviousPeriodLoading) {
+      //   TimeSheetProvider().loadTimeSheetFor(previousPeriodStart).then(
+      //     (TimeSheetPeriodInfo tp) {
+      //       _timeSheetPeriodCache.putIfAbsent(previousPeriodStart, () => tp);
+      //       _isPreviousPeriodLoading = false;
+      //       notifyListeners();
+      //     },
+      //   );
+      // }
+      // if (_isNextPeriodLoading) {
+      //   TimeSheetProvider()
+      //       .loadTimeSheetFor(nextPeriodStart)
+      //       .then((TimeSheetPeriodInfo tp) {
+      //     _timeSheetPeriodCache.putIfAbsent(nextPeriodStart, () => tp);
+      //     _isNextPeriodLoading = false;
+      //     notifyListeners();
+      //   });
+      // }
 
       if (_timeSheetPeriodCache.containsKey(periodStartDate)) {
         _currentTimeSheetPeriod = _timeSheetPeriodCache[periodStartDate];
@@ -200,8 +200,8 @@ class CalendarModel extends Model {
       return true;
     } catch (e) {
       _isBusy = false;
-      _isNextPeriodLoading = false;
-      _isPreviousPeriodLoading = false;
+      // _isNextPeriodLoading = false;
+      // _isPreviousPeriodLoading = false;
       _needsLoginIn = true;
       notifyListeners();
     }

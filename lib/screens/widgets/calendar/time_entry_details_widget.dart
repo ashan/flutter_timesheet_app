@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../models/calendar.dart';
 import '../../../models/time_entry_info.dart';
@@ -11,12 +12,12 @@ class TimeEntryDetailsWidget extends StatefulWidget {
   TimeEntryDetailsWidget(this._calendar, this._timeEntryInfo);
 
   @override
-  State<StatefulWidget> createState() {
-    return _TimeEntryDetailsWidgetState();
-  }
+  State<StatefulWidget> createState() => _TimeEntryDetailsWidgetState();
 }
 
 class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
+  TimeEntryInfo _timeEntryInfo;
+  bool _isNewTimeEntry = false;
   final _formKey = GlobalKey<FormState>();
 
   var _clientList = <DropdownMenuItem<String>>[];
@@ -32,19 +33,49 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   var _enableNotes = false;
 
   var _dates = <DateTime, bool>{};
+  var _allDatesSelected = false;
 
   bool _isEditable = false;
+
+  Color _editableIconColor;
 
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
+  // show hide error messages
+  bool _addButtonPressedOnce = false;
+  bool _showDateRequriedErrorMsg = false;
+  bool _showClientRequiredErrorMsg = false;
+  bool _showProjectRequriedErrorMsg = false;
+  bool _showTaskRequiredErrorMsg = false;
+  bool _showTimeRequiredErrorMsg = false;
+
+
+
   @override
   void initState() {
     super.initState();
-    _setupClientsDropDownList();
-    _isEditable = widget._timeEntryInfo.isEditable;
-    _timeController.text = widget._timeEntryInfo.hours?.toString() ?? '';
-    _notesController.text = widget._timeEntryInfo.notes ?? '';
+    _init();
+  }
+
+  void _init() {
+    if (widget._timeEntryInfo == null) {
+      // we are trying to add a new time entry
+      _isNewTimeEntry = true;
+      _timeEntryInfo = TimeEntryInfo(id: Uuid().v1());
+      _isEditable = true;
+      _timeController.text = '';
+      _notesController.text = '';
+    } else {
+      // we are trying to display read only info or edit an existing time entry info
+      // so read in from the passed in _timeEntryInfo
+      _timeEntryInfo = widget._timeEntryInfo;
+      _isEditable = _timeEntryInfo.isEditable;
+      _timeController.text = _timeEntryInfo.hours == 0
+          ? ''
+          : widget._timeEntryInfo.hours.toString();
+      _notesController.text = widget._timeEntryInfo.notes ?? '';
+    }
 
     _setupDatesList();
   }
@@ -56,36 +87,49 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   }
 
   void _setupDatesList() {
-    if (_isEditable && widget._timeEntryInfo.dateInfo == null) {
+    if (_isEditable && _timeEntryInfo.dateInfo == null) {
       final currentPeriod = widget._calendar.currentTimeSheetPeriod;
       // new time entry, add all possible dates and mark selected dates
       currentPeriod.allDaysInPeriod.keys.forEach((DateTime d) =>
           _dates.putIfAbsent(d, () => currentPeriod.isSelectedDate(d)));
     } else {
-      _dates.putIfAbsent(widget._timeEntryInfo.dateInfo.date, () => true);
+      _dates.putIfAbsent(_timeEntryInfo.dateInfo.date, () => true);
     }
   }
 
   void _setupClientsDropDownList() {
-    // if TimeEntry info already contains clients use them (i.e. we are in edit/view mode)
-    List<Info> list = widget._timeEntryInfo.clientCodes.isNotEmpty
-        ? widget._timeEntryInfo.clientCodes
-        : widget._calendar.getAllPossibleClientCodes();
-    _clientList = list
-        .map(
-          (cc) => DropdownMenuItem<String>(
-                child: Text(cc.code),
-                value: cc.id,
-              ),
-        )
-        .toList();
+    _selectedClientId = _timeEntryInfo.selectedClient?.id ?? null;
 
-    _selectedClientId = widget._timeEntryInfo.selectedClient?.id ?? null;
+    if (_dates.containsValue(true)) {
+      // if TimeEntry info already contains clients use them (i.e. we are in edit/view mode)
+      List<Info> list = _timeEntryInfo.clientCodes.isNotEmpty
+          ? _timeEntryInfo.clientCodes
+          : widget._calendar.getAllPossibleClientCodes();
+      _clientList = list
+          .map(
+            (cc) => DropdownMenuItem<String>(
+                  child: Text(cc.code),
+                  value: cc.id,
+                ),
+          )
+          .toList();
+    } else {
+      _clientList = [];
+      _projectsList = [];
+      _tasksList = [];
+      _selectedProjectId = null;
+      _selectedTaskId = null;
+      _enableTime = false;
+      _enableNotes = false;
+      _timeController.text =
+          _timeEntryInfo.hours == 0 ? '' : _timeEntryInfo.hours.toString();
+      _notesController.text = _timeEntryInfo.notes ?? '';
+    }
   }
 
   void _setupProjectsDropDownList() {
-    List<Info> list = widget._timeEntryInfo.projectCodes.isNotEmpty
-        ? widget._timeEntryInfo.clientCodes
+    List<Info> list = _timeEntryInfo.projectCodes.isNotEmpty
+        ? _timeEntryInfo.clientCodes
         : widget._calendar.getAllPossibleProjectCodes(_selectedClientId);
     _projectsList = list
         .map(
@@ -95,12 +139,12 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
               ),
         )
         .toList();
-    _selectedProjectId = widget._timeEntryInfo.selectedProject?.id ?? null;
+    _selectedProjectId = _timeEntryInfo.selectedProject?.id ?? null;
   }
 
   void _setupTasksDropDownList() {
-    List<Info> list = widget._timeEntryInfo.taskCodes.isNotEmpty
-        ? widget._timeEntryInfo.taskCodes
+    List<Info> list = _timeEntryInfo.taskCodes.isNotEmpty
+        ? _timeEntryInfo.taskCodes
         : widget._calendar
             .getAllPossibleTaskCodes(_selectedClientId, _selectedProjectId);
     _tasksList = list
@@ -111,31 +155,59 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
               ),
         )
         .toList();
-    _selectedTaskId = widget._timeEntryInfo.selectedTask?.id ?? null;
+    _selectedTaskId = _timeEntryInfo.selectedTask?.id ?? null;
   }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: floatingActionButtonBar,
+      body: SafeArea(
+        child: body,
+      ),
+    );
+  }
+
+  Widget get floatingActionButtonBar {
+    final children = <Widget>[
+      FloatingActionButton(
+        elevation: 8,
+        mini: true,
+        onPressed: () => Navigator.pop(context),
+        child: Icon(Icons.close),
+      ),
+    ];
+    if (_isEditable) {
+      children.add(
+        FloatingActionButton(
+          elevation: 8,
+          onPressed: _onSaveButtonPress,
+          child: Icon(Icons.save_alt),
+        ),
+      );
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: children,
+    );
+  }
+
+  Widget get body {
+    _editableIconColor = _isEditable ? Theme.of(context).accentColor : null;
     return Center(
       child: Container(
-        height: MediaQuery.of(context).size.height - 50,
-        width: MediaQuery.of(context).size.width - 50,
+        // height: MediaQuery.of(context).size.height - 50,
+        // width: MediaQuery.of(context).size.width - 50,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.only(top: 0, bottom: 5, right: 20, left: 20),
+            padding: EdgeInsets.only(top: 20, bottom: 20, right: 20, left: 20),
             child: Form(
               key: _formKey,
               child: ListView(
                 shrinkWrap: true,
                 children: <Widget>[
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: Icon(Icons.close),
-                      padding: EdgeInsets.all(0),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
                   _selectedDates,
                   _clients,
                   _projects,
@@ -157,31 +229,98 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
       (DateTime d, bool isSelected) {
         children.add(
           ChoiceChip(
-            onSelected: (bool) {
-              setState(() => _dates[d] = !isSelected);
-            },
+            selectedColor: _isEditable ? Theme.of(context).accentColor : null,
+            onSelected: _isEditable
+                ? (bool) {
+                    setState(
+                      () {
+                        _dates[d] = !isSelected;
+                        _setupClientsDropDownList();
+                        _validateForm();
+                      },
+                    );
+                  }
+                : null,
             selected: isSelected,
-            avatar: _isEditable && isSelected ? Icon(Icons.done) : null,
+            avatar: _isEditable && isSelected
+                ? Icon(
+                    Icons.done,
+                    color: Colors.white,
+                  )
+                : null,
             label: Text(
-              DateFormat.MMMd().format(d),
+              DateFormat('d E').format(d),
+              style: TextStyle(
+                color: _isEditable && isSelected ? Colors.white : null,
+              ),
             ),
           ),
         );
       },
     );
 
-    return Row(
+    // select all chip
+    if (_isEditable) {
+      children.add(
+        ChoiceChip(
+          selectedColor: Theme.of(context).accentColor,
+          onSelected: (bool val) {
+            setState(
+              () {
+                _allDatesSelected = val;
+                for (DateTime d in _dates.keys) {
+                  _dates[d] = _allDatesSelected;
+                }
+                _setupClientsDropDownList();
+                _validateForm();
+              },
+            );
+          },
+          selected: _allDatesSelected,
+          avatar: _isEditable && _allDatesSelected
+              ? Icon(
+                  Icons.done,
+                  color: Colors.white,
+                )
+              : null,
+          label: Text(
+            _allDatesSelected ? 'Deselect All' : 'Select All',
+            style: TextStyle(
+              color: _isEditable && _allDatesSelected ? Colors.white : null,
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget validationMessage = Text(
+      _showDateRequriedErrorMsg
+          ? 'Please select one or more days to enter time'
+          : '',
+      style: TextStyle(color: Theme.of(context).errorColor),
+    );
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Icon(Icons.date_range),
-        SizedBox(width: 10),
-        Expanded(
-          child: Wrap(
-            spacing: 8.0,
-            runSpacing: 1.0,
-            children: children,
-          ),
-        )
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Icon(
+              Icons.date_range,
+              color: _editableIconColor,
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 1.0,
+                children: children,
+              ),
+            ),
+          ],
+        ),
+        validationMessage,
       ],
     );
   }
@@ -199,12 +338,12 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
                 _setupProjectsDropDownList();
               },
             ),
+        isError: _showClientRequiredErrorMsg,
       );
 
   Widget get _projects => _dropDown(
         icon: Icons.folder,
-        readOnlyText:
-            _isEditable ? null : widget._timeEntryInfo.selectedProject.code,
+        readOnlyText: _isEditable ? null : _timeEntryInfo.selectedProject.code,
         dropDownHintText: 'Project',
         dropDownItemList: _projectsList,
         selectedDropDownItem: _selectedProjectId,
@@ -214,12 +353,12 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
                 _setupTasksDropDownList();
               },
             ),
+        isError: _showProjectRequriedErrorMsg,
       );
 
   Widget get _tasks => _dropDown(
         icon: Icons.work,
-        readOnlyText:
-            _isEditable ? null : widget._timeEntryInfo.selectedTask.code,
+        readOnlyText: _isEditable ? null : _timeEntryInfo.selectedTask.code,
         dropDownHintText: 'Task',
         dropDownItemList: _tasksList,
         selectedDropDownItem: _selectedTaskId,
@@ -230,6 +369,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
                 _enableNotes = true;
               },
             ),
+        isError: _showTaskRequiredErrorMsg,
       );
 
   Widget _dropDown(
@@ -238,9 +378,13 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
       String dropDownHintText,
       List<DropdownMenuItem<String>> dropDownItemList,
       String selectedDropDownItem,
-      Function(String val) dropDownOnChanged}) {
+      Function(String val) dropDownOnChanged,
+      bool isError}) {
     var children = <Widget>[
-      Icon(icon),
+      Icon(
+        icon,
+        color: dropDownItemList.length > 0 ? _editableIconColor : null,
+      ),
       SizedBox(width: 10),
     ];
 
@@ -251,7 +395,10 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
             hint: Text(dropDownHintText),
             items: dropDownItemList,
             value: selectedDropDownItem,
-            onChanged: dropDownOnChanged,
+            onChanged: (String val) {
+              dropDownOnChanged(val);
+              _validateForm();
+            },
             isExpanded: true,
           ),
         ),
@@ -263,16 +410,28 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
         ),
       );
     }
-    return Row(children: children);
+
+    Widget validationMessage = Text(
+      isError ? '$dropDownHintText required' : '',
+      style: TextStyle(color: Theme.of(context).errorColor),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(children: children),
+        validationMessage,
+      ],
+    );
   }
 
   Widget get _time => _textField(
-        icon: Icons.timer,
-        textInputType: TextInputType.number,
-        editingtController: _timeController,
-        enableTextField: _enableTime,
-        inputLabel: 'Time',
-      );
+      icon: Icons.timer,
+      textInputType: TextInputType.number,
+      editingtController: _timeController,
+      enableTextField: _enableTime,
+      inputLabel: 'Time',
+      isError: _showTimeRequiredErrorMsg);
 
   Widget get _notes => _textField(
         icon: Icons.note,
@@ -287,21 +446,26 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
       TextEditingController editingtController,
       TextInputType textInputType,
       String inputLabel,
-      bool enableTextField}) {
+      bool enableTextField,
+      bool isError}) {
     if (!_isEditable && editingtController.text.isEmpty) return Container();
     final children = <Widget>[
-      Icon(icon),
+      Icon(
+        icon,
+        color: enableTextField ? _editableIconColor : null,
+      ),
       SizedBox(width: 10),
     ];
 
     if (_isEditable) {
       children.add(
         Expanded(
-          child: TextFormField(
+          child: TextField(
             enabled: enableTextField,
             controller: editingtController,
             keyboardType: textInputType,
             decoration: InputDecoration(labelText: inputLabel),
+            onChanged: (String val) => _validateForm(),
           ),
         ),
       );
@@ -312,6 +476,65 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
         ),
       );
     }
-    return Row(children: children);
+
+    Widget validationMessage = isError == null
+        ? Container()
+        : Text(
+            isError ? '$inputLabel required' : '',
+            style: TextStyle(color: Theme.of(context).errorColor),
+          );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(children: children),
+        validationMessage,
+      ],
+    );
+  }
+
+  void _onSaveButtonPress() {
+    setState(() => _addButtonPressedOnce = true);
+    if (_validateForm()) {
+      // is it a new time entry?
+      if (_isNewTimeEntry) {
+        // add the time entry in to the correct date
+        _dates.forEach(
+          (DateTime d, bool isSelected) {
+            if(isSelected){
+              final dateInfo = widget._calendar.currentTimeSheetPeriod.createOrGetDateInfo(d);
+
+            }
+          },
+        );
+      }
+    }
+  }
+
+  bool _validateForm() {
+    if (_addButtonPressedOnce) {
+      setState(
+        () {
+          _showDateRequriedErrorMsg = !_dates.containsValue(true);
+          _showClientRequiredErrorMsg =
+              _selectedClientId == null || _selectedClientId.isEmpty;
+          _showProjectRequriedErrorMsg =
+              _selectedProjectId == null || _selectedProjectId.isEmpty;
+          _showTaskRequiredErrorMsg =
+              _selectedTaskId == null || _selectedTaskId.isEmpty;
+          _showTimeRequiredErrorMsg = _timeController.text.isEmpty;
+          try {
+            double.parse(_timeController.text);
+          } catch (error) {
+            _showTimeRequiredErrorMsg = true;
+          }
+        },
+      );
+    }
+    return !_showClientRequiredErrorMsg &&
+        !_showClientRequiredErrorMsg &&
+        !_showProjectRequriedErrorMsg &&
+        !_showTaskRequiredErrorMsg &&
+        !_showTimeRequiredErrorMsg;
   }
 }
