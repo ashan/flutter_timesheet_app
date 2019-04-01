@@ -16,18 +16,13 @@ class TimeEntryDetailsWidget extends StatefulWidget {
 }
 
 class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
+  bool isNew = false;
   TimeEntryInfo _timeEntryInfo;
-  bool _isNewTimeEntry = false;
   final _formKey = GlobalKey<FormState>();
 
   var _clientList = <DropdownMenuItem<String>>[];
-  String _selectedClientId = '';
-
   var _projectsList = <DropdownMenuItem<String>>[];
-  String _selectedProjectId = '';
-
   var _tasksList = <DropdownMenuItem<String>>[];
-  String _selectedTaskId = '';
 
   var _enableTime = false;
   var _enableNotes = false;
@@ -39,7 +34,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
 
   Color _editableIconColor;
 
-  final TextEditingController _timeController = TextEditingController();
+  final TextEditingController _hoursController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
   // show hide error messages
@@ -50,8 +45,6 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   bool _showTaskRequiredErrorMsg = false;
   bool _showTimeRequiredErrorMsg = false;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -61,33 +54,37 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   void _init() {
     if (widget._timeEntryInfo == null) {
       // we are trying to add a new time entry
-      _isNewTimeEntry = true;
-      _timeEntryInfo = TimeEntryInfo(id: Uuid().v1());
+      isNew = true;
+      _timeEntryInfo =
+          TimeEntryInfo(id: 'dummy time entry for copying purposes');
       _isEditable = true;
-      _timeController.text = '';
+      _hoursController.text = '';
       _notesController.text = '';
     } else {
       // we are trying to display read only info or edit an existing time entry info
       // so read in from the passed in _timeEntryInfo
       _timeEntryInfo = widget._timeEntryInfo;
       _isEditable = _timeEntryInfo.isEditable;
-      _timeController.text = _timeEntryInfo.hours == 0
+      _hoursController.text = _timeEntryInfo.hours == 0
           ? ''
           : widget._timeEntryInfo.hours.toString();
       _notesController.text = widget._timeEntryInfo.notes ?? '';
     }
 
     _setupDatesList();
+    _setupClientsDropDownList();
+    _setupProjectsDropDownList();
+    _setupTasksDropDownList();
   }
 
   @override
   void dispose() {
     super.dispose();
-    _timeController.dispose();
+    _hoursController.dispose();
   }
 
   void _setupDatesList() {
-    if (_isEditable && _timeEntryInfo.dateInfo == null) {
+    if (_isEditable) {
       final currentPeriod = widget._calendar.currentTimeSheetPeriod;
       // new time entry, add all possible dates and mark selected dates
       currentPeriod.allDaysInPeriod.keys.forEach((DateTime d) =>
@@ -98,13 +95,14 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   }
 
   void _setupClientsDropDownList() {
-    _selectedClientId = _timeEntryInfo.selectedClient?.id ?? null;
-
     if (_dates.containsValue(true)) {
-      // if TimeEntry info already contains clients use them (i.e. we are in edit/view mode)
-      List<Info> list = _timeEntryInfo.clientCodes.isNotEmpty
-          ? _timeEntryInfo.clientCodes
-          : widget._calendar.getAllPossibleClientCodes();
+      List<Info> list = [];
+      if (_timeEntryInfo.clientCodes.isNotEmpty) {
+        list = List<Info>.from(_timeEntryInfo.clientCodes);
+      } else {
+        list = List<Info>.from(widget._calendar.getAllPossibleClientCodes());
+        _timeEntryInfo.clientCodes = List<Info>.from(list);
+      }
       _clientList = list
           .map(
             (cc) => DropdownMenuItem<String>(
@@ -117,21 +115,19 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
       _clientList = [];
       _projectsList = [];
       _tasksList = [];
-      _selectedProjectId = null;
-      _selectedTaskId = null;
       _enableTime = false;
       _enableNotes = false;
-      _timeController.text =
+      _hoursController.text =
           _timeEntryInfo.hours == 0 ? '' : _timeEntryInfo.hours.toString();
       _notesController.text = _timeEntryInfo.notes ?? '';
     }
   }
 
   void _setupProjectsDropDownList() {
-    List<Info> list = _timeEntryInfo.projectCodes.isNotEmpty
-        ? _timeEntryInfo.clientCodes
-        : widget._calendar.getAllPossibleProjectCodes(_selectedClientId);
-    _projectsList = list
+    _timeEntryInfo.projectCodes = List<Info>.from(widget._calendar
+        .getAllPossibleProjectCodes(_timeEntryInfo.selectedClient.id));
+
+    _projectsList = _timeEntryInfo.projectCodes
         .map(
           (pc) => DropdownMenuItem<String>(
                 child: Text(pc.code),
@@ -139,15 +135,14 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
               ),
         )
         .toList();
-    _selectedProjectId = _timeEntryInfo.selectedProject?.id ?? null;
   }
 
   void _setupTasksDropDownList() {
-    List<Info> list = _timeEntryInfo.taskCodes.isNotEmpty
-        ? _timeEntryInfo.taskCodes
-        : widget._calendar
-            .getAllPossibleTaskCodes(_selectedClientId, _selectedProjectId);
-    _tasksList = list
+    _timeEntryInfo.taskCodes = List<Info>.from(widget._calendar
+        .getAllPossibleTaskCodes(
+            _timeEntryInfo.selectedClientId, _timeEntryInfo.selectedProjectId));
+
+    _tasksList = _timeEntryInfo.taskCodes
         .map(
           (tc) => DropdownMenuItem<String>(
                 child: Text(tc.code),
@@ -155,7 +150,6 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
               ),
         )
         .toList();
-    _selectedTaskId = _timeEntryInfo.selectedTask?.id ?? null;
   }
 
   @override
@@ -331,10 +325,10 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
             _isEditable ? null : widget._timeEntryInfo.selectedClient.code,
         dropDownHintText: 'Client',
         dropDownItemList: _clientList,
-        selectedDropDownItem: _selectedClientId,
+        selectedDropDownItem: _timeEntryInfo.selectedClientId,
         dropDownOnChanged: (val) => setState(
               () {
-                _selectedClientId = val;
+                _timeEntryInfo.selectedClientId = val;
                 _setupProjectsDropDownList();
               },
             ),
@@ -346,10 +340,10 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
         readOnlyText: _isEditable ? null : _timeEntryInfo.selectedProject.code,
         dropDownHintText: 'Project',
         dropDownItemList: _projectsList,
-        selectedDropDownItem: _selectedProjectId,
+        selectedDropDownItem: _timeEntryInfo.selectedProjectId,
         dropDownOnChanged: (val) => setState(
               () {
-                _selectedProjectId = val;
+                _timeEntryInfo.selectedProjectId = val;
                 _setupTasksDropDownList();
               },
             ),
@@ -361,10 +355,10 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
         readOnlyText: _isEditable ? null : _timeEntryInfo.selectedTask.code,
         dropDownHintText: 'Task',
         dropDownItemList: _tasksList,
-        selectedDropDownItem: _selectedTaskId,
+        selectedDropDownItem: _timeEntryInfo.selectedTaskId,
         dropDownOnChanged: (val) => setState(
               () {
-                _selectedTaskId = val;
+                _timeEntryInfo.selectedTaskId = val;
                 _enableTime = true;
                 _enableNotes = true;
               },
@@ -428,7 +422,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   Widget get _time => _textField(
       icon: Icons.timer,
       textInputType: TextInputType.number,
-      editingtController: _timeController,
+      editingtController: _hoursController,
       enableTextField: _enableTime,
       inputLabel: 'Time',
       isError: _showTimeRequiredErrorMsg);
@@ -494,20 +488,25 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   }
 
   void _onSaveButtonPress() {
-    setState(() => _addButtonPressedOnce = true);
+    setState(
+      () {
+        _addButtonPressedOnce = true;
+        _timeEntryInfo.hours = double.parse(_hoursController.text);
+        _timeEntryInfo.notes = _notesController.text;
+      },
+    );
     if (_validateForm()) {
-      // is it a new time entry?
-      if (_isNewTimeEntry) {
-        // add the time entry in to the correct date
-        _dates.forEach(
-          (DateTime d, bool isSelected) {
-            if(isSelected){
-              final dateInfo = widget._calendar.currentTimeSheetPeriod.createOrGetDateInfo(d);
-
-            }
-          },
-        );
-      }
+      // copy the time entry details in to new time entry instances
+      _dates.forEach(
+        (DateTime d, bool isSelected) {
+          if (isSelected) {
+            final dateInfo =
+                widget._calendar.currentTimeSheetPeriod.createOrGetDateInfo(d);
+            dateInfo.createOrGetTimeEntryInfoFrom(
+                newId: Uuid().v1(), copyFrom: _timeEntryInfo);
+          }
+        },
+      );
     }
   }
 
@@ -517,14 +516,16 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
         () {
           _showDateRequriedErrorMsg = !_dates.containsValue(true);
           _showClientRequiredErrorMsg =
-              _selectedClientId == null || _selectedClientId.isEmpty;
+              _timeEntryInfo.selectedClientId == null ||
+                  _timeEntryInfo.selectedClientId.isEmpty;
           _showProjectRequriedErrorMsg =
-              _selectedProjectId == null || _selectedProjectId.isEmpty;
-          _showTaskRequiredErrorMsg =
-              _selectedTaskId == null || _selectedTaskId.isEmpty;
-          _showTimeRequiredErrorMsg = _timeController.text.isEmpty;
+              _timeEntryInfo.selectedProjectId == null ||
+                  _timeEntryInfo.selectedProjectId.isEmpty;
+          _showTaskRequiredErrorMsg = _timeEntryInfo.selectedTaskId == null ||
+              _timeEntryInfo.selectedTaskId.isEmpty;
+          _showTimeRequiredErrorMsg = _hoursController.text.isEmpty;
           try {
-            double.parse(_timeController.text);
+            double.parse(_hoursController.text);
           } catch (error) {
             _showTimeRequiredErrorMsg = true;
           }

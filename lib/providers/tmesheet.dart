@@ -162,22 +162,21 @@ class TimeSheetProvider {
                   strTimeVal = strTimeVal.replaceAll(':', '.');
                   double dblTimeVal = double.parse(strTimeVal);
                   // ready to populate a timeEntry models
-
-                  var timeEntry = TimeEntryInfo(id: timeInputId)
+                  var timeEntry =
+                      currentDateInfo.createOrGetTimeEntryInfo(timeInputId);
+                  timeEntry
                     ..clientCodes = allClients
                         .map((c) => Info(id: c.id, code: c.code))
                         .toList()
-                    ..selectedClientCodeId = selectedClientID
+                    ..selectedClientId = selectedClientID
                     ..projectCodes = projects
                         .map((p) => Info(id: p.id, code: p.code))
                         .toList()
-                    ..selectedProjectCodeId = selectedProjectID
+                    ..selectedProjectId = selectedProjectID
                     ..taskCodes =
                         tasks.map((t) => Info(id: t.id, code: t.code)).toList()
-                    ..selectedTaskCodeId = selectedTaskID
+                    ..selectedTaskId = selectedTaskID
                     ..hours = dblTimeVal;
-
-                  currentDateInfo.ammendTimeEntryInfo(timeEntry);
                 }
               }
               // increase the date
@@ -250,27 +249,26 @@ class TimeSheetProvider {
 
     for (DateTime d in allDays) {
       final dateInfo = retVal.createOrGetDateInfo(d);
-      dateInfo.ammendTimeEntryInfo(
-        TimeEntryInfo(id: 'abc')
-          ..clientCodes = <Info>[
-            Info(id: '0', code: 'ACC'),
-            Info(id: '1', code: 'iCare'),
-            Info(id: '3', code: 'MOJ'),
-            Info(id: '4', code: 'Internal')
-          ]
-          ..selectedClientCodeId = '4'
-          ..projectCodes = <Info>[
-            Info(id: '0', code: 'Administration'),
-            Info(id: '1', code: 'Business Development'),
-            Info(id: '3', code: 'Leave'),
-          ]
-          ..selectedProjectCodeId = '3'
-          ..taskCodes = <Info>[
-            Info(id: '0', code: 'Adminstration|Non-Billable Time'),
-            Info(id: '1', code: 'Adminstration|Staff Update Sessions')
-          ]
-          ..selectedTaskCodeId = '0',
-      );
+      final timeInfo = dateInfo.createOrGetTimeEntryInfo('abc');
+      timeInfo
+        ..clientCodes = <Info>[
+          Info(id: '0', code: 'ACC'),
+          Info(id: '1', code: 'iCare'),
+          Info(id: '3', code: 'MOJ'),
+          Info(id: '4', code: 'Internal')
+        ]
+        ..selectedClientId = '4'
+        ..projectCodes = <Info>[
+          Info(id: '0', code: 'Administration'),
+          Info(id: '1', code: 'Business Development'),
+          Info(id: '3', code: 'Leave'),
+        ]
+        ..selectedProjectId = '3'
+        ..taskCodes = <Info>[
+          Info(id: '0', code: 'Adminstration|Non-Billable Time'),
+          Info(id: '1', code: 'Adminstration|Staff Update Sessions')
+        ]
+        ..selectedTaskId = '0';
     }
     return retVal;
   }

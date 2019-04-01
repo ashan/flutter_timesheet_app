@@ -6,23 +6,26 @@ class TimeEntryInfo {
   String id;
 
   List<Info> clientCodes = [];
-  String selectedClientCodeId;
+  String selectedClientId;
   Info get selectedClient => clientCodes
-      .firstWhere((Info c) => c.id == selectedClientCodeId, orElse: () => null);
-  set selectedClientWithID(String id) => selectedClientCodeId = id;
+      .firstWhere((Info c) => c.id == selectedClientId, orElse: () => null);
+  set selectedClientWithID(String id) => selectedClientId = id;
   set selectedClient(Info selectedClient) =>
-      selectedClientCodeId = selectedClient.id;
+      selectedClientId = selectedClient.id;
 
   List<Info> projectCodes = [];
-  String selectedProjectCodeId;
+  String selectedProjectId;
   Info get selectedProject =>
-      projectCodes.firstWhere((Info p) => p.id == selectedProjectCodeId,
+      projectCodes.firstWhere((Info p) => p.id == selectedProjectId,
           orElse: () => null);
+  set selectedProject(Info selectedProject) =>
+      selectedProjectId = selectedProject.id;
 
   List<Info> taskCodes = [];
-  String selectedTaskCodeId;
+  String selectedTaskId;
   Info get selectedTask => taskCodes
-      .firstWhere((Info t) => t.id == selectedTaskCodeId, orElse: () => null);
+      .firstWhere((Info t) => t.id == selectedTaskId, orElse: () => null);
+  set selectedTask(Info selectedTask) => selectedTaskId = selectedTask.id;
 
   double hours = 0.0;
 
@@ -30,7 +33,18 @@ class TimeEntryInfo {
 
   TimeEntryInfo({@required this.id});
 
-  bool get isEditable => dateInfo?.isEditable??true;
+  bool get isEditable => dateInfo?.isEditable ?? true;
+
+  static TimeEntryInfo from(String newId, TimeEntryInfo other) =>
+      TimeEntryInfo(id: newId)
+        ..clientCodes = List<Info>.from(other.clientCodes)
+        ..projectCodes = List<Info>.from(other.projectCodes)
+        ..taskCodes = List<Info>.from(other.taskCodes)
+        ..selectedClient = Info.from(other.selectedClient)
+        ..selectedProject = Info.from(other.selectedProject)
+        ..selectedTask = Info.from(other.selectedTask)
+        ..notes = other.notes
+        ..hours = other.hours;
 }
 
 class Info {
@@ -39,4 +53,6 @@ class Info {
   Info({@required this.id, @required this.code});
   @override
   String toString() => code;
+
+  static Info from(Info info) => Info(id: info.id, code: info.code);
 }
