@@ -93,9 +93,6 @@ class CalendarModel extends Model {
   }
 
   /// ------------- public methods --------------------------------//
-  TimeEntryInfo timeEntryPlaceHolder() {
-    // TimeE
-  }
 
   ///----------------- event listeners -----------------------------//
   Future<bool> onTapLogout() async {

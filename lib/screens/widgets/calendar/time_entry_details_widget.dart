@@ -65,6 +65,9 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
       // so read in from the passed in _timeEntryInfo
       _timeEntryInfo = widget._timeEntryInfo;
       _isEditable = _timeEntryInfo.isEditable;
+
+      _enableTime = true;
+      _enableNotes = true;
       _hoursController.text = _timeEntryInfo.hours == 0
           ? ''
           : widget._timeEntryInfo.hours.toString();
@@ -124,8 +127,9 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   }
 
   void _setupProjectsDropDownList() {
-    _timeEntryInfo.projectCodes = List<Info>.from(widget._calendar
-        .getAllPossibleProjectCodes(_timeEntryInfo.selectedClient.id));
+    if (_timeEntryInfo.selectedClientId != null)
+      _timeEntryInfo.projectCodes = List<Info>.from(widget._calendar
+          .getAllPossibleProjectCodes(_timeEntryInfo.selectedClientId));
 
     _projectsList = _timeEntryInfo.projectCodes
         .map(
@@ -138,9 +142,11 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   }
 
   void _setupTasksDropDownList() {
-    _timeEntryInfo.taskCodes = List<Info>.from(widget._calendar
-        .getAllPossibleTaskCodes(
-            _timeEntryInfo.selectedClientId, _timeEntryInfo.selectedProjectId));
+    if (_timeEntryInfo.selectedClientId != null &&
+        _timeEntryInfo.selectedProjectId != null)
+      _timeEntryInfo.taskCodes = List<Info>.from(widget._calendar
+          .getAllPossibleTaskCodes(_timeEntryInfo.selectedClientId,
+              _timeEntryInfo.selectedProjectId));
 
     _tasksList = _timeEntryInfo.taskCodes
         .map(
@@ -206,7 +212,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
                   _clients,
                   _projects,
                   _tasks,
-                  _time,
+                  _hours,
                   _notes,
                 ],
               ),
@@ -419,7 +425,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
     );
   }
 
-  Widget get _time => _textField(
+  Widget get _hours => _textField(
       icon: Icons.timer,
       textInputType: TextInputType.number,
       editingtController: _hoursController,
@@ -488,6 +494,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   }
 
   void _onSaveButtonPress() {
+    FocusScope.of(context).requestFocus(new FocusNode());
     setState(
       () {
         _addButtonPressedOnce = true;
@@ -497,6 +504,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
     );
     if (_validateForm()) {
       // copy the time entry details in to new time entry instances
+      widget._calendar.currentTimeSheetPeriod.clearSelectedDays();
       _dates.forEach(
         (DateTime d, bool isSelected) {
           if (isSelected) {
@@ -504,6 +512,8 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
                 widget._calendar.currentTimeSheetPeriod.createOrGetDateInfo(d);
             dateInfo.createOrGetTimeEntryInfoFrom(
                 newId: Uuid().v1(), copyFrom: _timeEntryInfo);
+
+            widget._calendar.onDateTap(d);
           }
         },
       );

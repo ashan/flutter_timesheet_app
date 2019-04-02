@@ -28,7 +28,16 @@ class _TimeEntryDetailsSummaryWidgetState
             itemBuilder: (BuildContext context, int i) {
               final entryInfo =
                   calendar.currentTimeSheetPeriod.allTimeEntryInfo[i];
-              return timeEntryDetailFor(calendar, entryInfo);
+              return entryInfo.isEditable
+                  ? Dismissible(
+                      background: Container(color: Colors.red),
+                      key: Key(entryInfo.id),
+                      child: timeEntryDetailFor(calendar, entryInfo),
+                      onDismissed: (DismissDirection d) {
+                        entryInfo.dateInfo.removeTimeEntryWithId(entryInfo.id);
+                      },
+                    )
+                  : timeEntryDetailFor(calendar, entryInfo);
             },
           ),
         );
@@ -77,6 +86,7 @@ class _TimeEntryDetailsSummaryWidgetState
         }
       }
     }
+
     var client = Container(
         height: 60,
         width: 60,
@@ -100,7 +110,7 @@ class _TimeEntryDetailsSummaryWidgetState
 
     var project = Text(
       timeInfo.selectedProject.toString(),
-      style: TextStyle(fontWeight: FontWeight.bold),
+      style: TextStyle(fontWeight: FontWeight.w400),
     );
 
     var taskPlusTime = Row(
@@ -127,27 +137,39 @@ class _TimeEntryDetailsSummaryWidgetState
       padding: EdgeInsets.only(left: 2, right: 2),
       child: Card(
         elevation: 8,
-        margin: EdgeInsets.symmetric(horizontal: 2, vertical: 3),
-        child: Container(
-          decoration: BoxDecoration(
-            border: BorderDirectional(
-              bottom: BorderSide(color: cardBorderColor, width: 8.0),
+        margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5 ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(top:10, left: 10),
+              child:Text(timeInfo.dateInfo.toString(), style: TextStyle(
+                fontWeight: FontWeight.w500,
+              ),),
             ),
-          ),
-          child: InkWell(
-            onTap: () => Navigator.of(context).push(
-                  TimeEntryOverlay(calendar, timeEntryInfo: timeInfo),
+            Divider(),
+            Container(
+              decoration: BoxDecoration(
+                border: BorderDirectional(
+                  bottom: BorderSide(color: cardBorderColor, width: 8.0),
                 ),
-            child: ListTile(
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              title: project,
-              leading: client,
-              subtitle: taskPlusTime,
-              trailing: moreInfo,
-              enabled: timeInfo.isEditable,
+              ),
+              child: InkWell(
+                onTap: () => Navigator.of(context).push(
+                      TimeEntryOverlay(calendar, timeEntryInfo: timeInfo),
+                    ),
+                child: ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  leading: client,
+                  title: project,
+                  subtitle: taskPlusTime,
+                  trailing: moreInfo,
+                  enabled: timeInfo.isEditable,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

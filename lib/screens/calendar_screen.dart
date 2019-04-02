@@ -17,6 +17,7 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  var dummy = false;
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<CalendarModel>(
@@ -45,9 +46,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
             floatingActionButton: calendar.currentTimeSheetPeriod.isEditable
                 ? FloatingActionButton(
                     child: const Icon(Icons.add),
-                    onPressed: () => Navigator.of(context).push(
+                    onPressed: () => Navigator.of(context)
+                        .push(
                           TimeEntryOverlay(calendar),
-                        ),
+                        )
+                        // .then(
+                        //   (value) => setState(() => calendar.notifyListeners()),
+                        // ),
                   )
                 : null,
             bottomNavigationBar: BottomAppBar(
@@ -94,4 +99,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
   }
+}
+
+class RedrawHelper extends InheritedWidget {
+  RedrawHelper({
+    Key key,
+    @required Widget child,
+  }) : super(key: key, child: child);
+
+  bool _toggle = false;
+  static RedrawHelper of(BuildContext context) {
+    return context.inheritFromWidgetOfExactType(RedrawHelper);
+  }
+
+  void toggle() {
+    _toggle = !_toggle;
+  }
+
+  @override
+  bool updateShouldNotify(RedrawHelper oldWidget) =>
+      _toggle != oldWidget._toggle;
 }

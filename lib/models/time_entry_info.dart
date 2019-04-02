@@ -35,6 +35,8 @@ class TimeEntryInfo {
 
   bool get isEditable => dateInfo?.isEditable ?? true;
 
+
+ 
   static TimeEntryInfo from(String newId, TimeEntryInfo other) =>
       TimeEntryInfo(id: newId)
         ..clientCodes = List<Info>.from(other.clientCodes)

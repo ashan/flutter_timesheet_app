@@ -16,11 +16,24 @@ class DateInfo {
 
   TimeEntryInfo createOrGetTimeEntryInfoFrom(
       {@required String newId, @required TimeEntryInfo copyFrom}) {
-    return timeEntryDetails.putIfAbsent(
-        newId, () => TimeEntryInfo.from(newId, copyFrom)..dateInfo = this);
+    if (timeEntryDetails.containsKey(copyFrom.id)) {
+      timeEntryDetails[copyFrom.id] = copyFrom;
+    } else {
+      timeEntryDetails.putIfAbsent(
+          newId, () => TimeEntryInfo.from(newId, copyFrom)..dateInfo = this);
+    }
   }
 
   bool get isEditable => timeSheetPeriod.isEditable;
+
+  void removeTimeEntryWithId(String timeEntryId) {
+    this.timeEntryDetails.remove(timeEntryId);
+    this
+        .timeSheetPeriod
+        .allTimeEntryInfo
+        .removeWhere((te) => te.id == timeEntryId);
+  }
+
   @override
-  String toString() => DateFormat('d E').format(date);
+  String toString() => DateFormat('d EEEE MMMM yyyy').format(date);
 }

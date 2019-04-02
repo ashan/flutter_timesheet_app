@@ -83,7 +83,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           itemBuilder: (context, index) {
             final currentDate = calendar
                 .currentTimeSheetPeriod.allDaysInPeriod.keys
-                .toList()[index];
+                .toList()[index]; 
             return SizedBox(
               width: _individualDateWidth,
               height: _datesWidgetHeight,
