@@ -16,8 +16,8 @@ class TimeEntryDetailsWidget extends StatefulWidget {
 }
 
 class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
-  bool isNew = false;
   TimeEntryInfo _timeEntryInfo;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
 
   var _clientList = <DropdownMenuItem<String>>[];
@@ -51,10 +51,9 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
     _init();
   }
 
-  void _init() {
-    if (widget._timeEntryInfo == null) {
+  void _init({bool isReInsertingData = false}) {
+    if (isReInsertingData || widget._timeEntryInfo == null) {
       // we are trying to add a new time entry
-      isNew = true;
       _timeEntryInfo =
           TimeEntryInfo(id: 'dummy time entry for copying purposes');
       _isEditable = true;
@@ -161,6 +160,7 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.transparent,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: floatingActionButtonBar,
@@ -498,7 +498,10 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
     setState(
       () {
         _addButtonPressedOnce = true;
-        _timeEntryInfo.hours = double.parse(_hoursController.text);
+        _timeEntryInfo.hours =
+            _hoursController.text != null && _hoursController.text.isNotEmpty
+                ? double.parse(_hoursController.text)
+                : 0.0;
         _timeEntryInfo.notes = _notesController.text;
       },
     );
@@ -518,6 +521,14 @@ class _TimeEntryDetailsWidgetState extends State<TimeEntryDetailsWidget> {
         },
       );
     }
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text('Time added! '),
+      ),
+    );
+
+    // re init
+    _init(isReInsertingData: true);
   }
 
   bool _validateForm() {

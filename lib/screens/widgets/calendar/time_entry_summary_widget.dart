@@ -35,6 +35,7 @@ class _TimeEntryDetailsSummaryWidgetState
                       child: timeEntryDetailFor(calendar, entryInfo),
                       onDismissed: (DismissDirection d) {
                         entryInfo.dateInfo.removeTimeEntryWithId(entryInfo.id);
+                        calendar.notifyListeners();
                       },
                     )
                   : timeEntryDetailFor(calendar, entryInfo);
@@ -137,15 +138,18 @@ class _TimeEntryDetailsSummaryWidgetState
       padding: EdgeInsets.only(left: 2, right: 2),
       child: Card(
         elevation: 8,
-        margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5 ),
+        margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(top:10, left: 10),
-              child:Text(timeInfo.dateInfo.toString(), style: TextStyle(
-                fontWeight: FontWeight.w500,
-              ),),
+              padding: EdgeInsets.only(top: 10, left: 10),
+              child: Text(
+                timeInfo.dateInfo.toString(),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
             Divider(),
             Container(
