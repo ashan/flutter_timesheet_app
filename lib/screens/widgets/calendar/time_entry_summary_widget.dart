@@ -146,8 +146,8 @@ class _TimeEntryDetailsSummaryWidgetState
               padding: EdgeInsets.only(top: 10, left: 10),
               child: Text(
                 timeInfo.dateInfo.toString(),
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
+                style: Theme.of(context).textTheme.subtitle.copyWith(
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),

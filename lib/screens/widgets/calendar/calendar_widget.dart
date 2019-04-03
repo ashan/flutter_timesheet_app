@@ -53,8 +53,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 children: <Widget>[
                   Expanded(
                     child: ListTile(
-                      title: Text(calendar.headingDisplayStr),
-                      subtitle: Text(calendar.subHeadingDisplayStr),
+                      title: Text(
+                        calendar.headingDisplayStr,
+                        style: Theme.of(context).textTheme.title,
+                      ),
+                      subtitle: Text(calendar.subHeadingDisplayStr,
+                          style: Theme.of(context).textTheme.subtitle.copyWith(
+                                fontWeight: FontWeight.w400,
+                              )),
                     ),
                   ),
                 ],
@@ -83,7 +89,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           itemBuilder: (context, index) {
             final currentDate = calendar
                 .currentTimeSheetPeriod.allDaysInPeriod.keys
-                .toList()[index]; 
+                .toList()[index];
             return SizedBox(
               width: _individualDateWidth,
               height: _datesWidgetHeight,
