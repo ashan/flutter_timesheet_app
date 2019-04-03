@@ -111,7 +111,7 @@ class _TimeEntryDetailsSummaryWidgetState
 
     var project = Text(
       timeInfo.selectedProject.toString(),
-      style: TextStyle(fontWeight: FontWeight.w400),
+      style: TextStyle(fontWeight: FontWeight.w500),
     );
 
     var taskPlusTime = Row(
@@ -147,8 +147,8 @@ class _TimeEntryDetailsSummaryWidgetState
               child: Text(
                 timeInfo.dateInfo.toString(),
                 style: Theme.of(context).textTheme.subtitle.copyWith(
-                  fontWeight: FontWeight.w400,
-                ),
+                      fontWeight: FontWeight.w400,
+                    ),
               ),
             ),
             Divider(),
